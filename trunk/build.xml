@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!-- ====================================================================== 
+     14.09.2005 17:22:45                                                        
+
+     project    
+     description
+                   
+     Administrator                                                                
+     ====================================================================== -->
+<project name="project" default="default">
+    <description>
+            description
+    </description>
+	
+	<property name="JAVA_HOME" value="c:\Programme\java\jdk1.5.0_03"/>
+
+    <!-- ================================= 
+          target: default              
+         ================================= -->
+    <target name="default" depends="depends">
+        <javac srcdir="src"
+         destdir="bin"
+        	
+         debug="on"
+		/>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - 
+          target: depends                      
+         - - - - - - - - - - - - - - - - - -->
+    <target name="depends">
+    </target>
+
+</project>
+

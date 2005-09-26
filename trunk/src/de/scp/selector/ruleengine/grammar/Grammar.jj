@@ -1,0 +1,147 @@
+options {
+  LOOKAHEAD = 1;
+  CHOICE_AMBIGUITY_CHECK = 2;
+  OTHER_AMBIGUITY_CHECK = 1;
+  STATIC = false;
+  DEBUG_PARSER = false;
+  DEBUG_LOOKAHEAD = false;
+  DEBUG_TOKEN_MANAGER = false;
+  ERROR_REPORTING = true;
+  JAVA_UNICODE_ESCAPE = false;
+  UNICODE_INPUT = false;
+  IGNORE_CASE = false;
+  USER_TOKEN_MANAGER = false;
+  USER_CHAR_STREAM = false;
+  BUILD_PARSER = true;
+  BUILD_TOKEN_MANAGER = true;
+  SANITY_CHECK = true;
+  FORCE_LA_CHECK = false;
+}
+
+PARSER_BEGIN(Grammar)
+
+package ruleengine;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+
+public class Grammar {
+  String stringRepresentation;
+
+  public static void main(String args[]) throws ParseException {
+  	while (true) {
+  		String ob = "V0010:active,V0010:terminated,V0020:active,X0001";
+  		System.out.println(ob);
+		System.out.print("> ");
+	    String str ="";
+		try {
+			str = (new BufferedReader(new InputStreamReader(System.in))).readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	    Grammar parser = new Grammar(new StringReader(str));
+	    try {
+	    	parser.parse(ob);
+	    }
+	    catch (Throwable exc) {
+	    	exc.printStackTrace();
+	    }
+	}
+  }
+
+}
+
+PARSER_END(Grammar)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\r"
+}
+
+TOKEN :
+{
+  <TRUE: "true">
+| <FALSE: "false">
+| < STRING_LITERAL:
+      "\""
+      (   (~["\"","\\","\n","\r"])
+        | ("\\"
+            ( ["n","t","b","r","f","\\","'","\""]
+            | ["0"-"7"] ( ["0"-"7"] )?
+            | ["0"-"3"] ["0"-"7"] ["0"-"7"]
+            )
+          )
+      )*
+      "\""
+  >
+
+}
+
+void parse(String rep) :
+{
+	boolean ret;
+	stringRepresentation = rep;
+}
+{
+  ret=boolTermList() <EOF> {System.out.print("==> "+ret+"\n");}
+}
+
+boolean boolPrimitive() :
+{
+	String expr = "";
+}
+{
+	<TRUE> {return true;} |
+	<FALSE> {return false;}|
+	"has(" <STRING_LITERAL> 
+		{
+			expr = token.toString();
+			expr = expr.substring(1,expr.length()-1); 
+		} 
+	")" 
+		{return stringRepresentation.matches(expr); }
+	
+}
+
+boolean boolTerm() :
+{
+	boolean ret;
+}
+{
+	ret=boolPrimitive() {return ret;} |
+	"(" ret=boolTermList() ")" {return ret;}|
+	"not" ret=boolTerm() {return !ret;}
+}
+
+boolean boolAnd() :
+{
+	boolean l;
+	boolean r=true;
+}
+{
+	l=boolTerm() ["and" r=boolAnd() {l = l && r;}]
+	{return l;}
+}
+
+boolean boolOr() :
+{
+	boolean l;
+	boolean r;
+}
+{
+	l=boolAnd() [ "or" r=boolOr() {l = l || r;}]
+	{return l;}
+}
+
+boolean boolTermList() :
+{
+	boolean ret;
+}
+{
+	ret=boolOr()
+	{return ret;}
+}
