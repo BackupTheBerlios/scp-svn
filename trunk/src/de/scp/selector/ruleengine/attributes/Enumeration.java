@@ -107,7 +107,7 @@ public class Enumeration extends AbstractAttribute {
 			boolean isIncluded = false;
 			for (int i = 0; i < applicableVals.length; i++) {
 				if (elem.name.equals(applicableVals[i])) {
-					if (elem.sequence != 0 && elem.sequence < sequence && !elem.available) {
+					if (elem.sequence != 0 && getSequence() < sequence && !elem.available) {
 						result.setViolation("Inclusion of excluded value " + elem.name
 								+ " for attribute " + getName());
 					}
@@ -120,20 +120,25 @@ public class Enumeration extends AbstractAttribute {
 					}
 					break;
 				}
-				else if (elem.sequence != 0 && elem.sequence < sequence && elem.selected) {
+				else if (elem.sequence != 0 && getSequence() < sequence && elem.selected) {
 					result.setViolation("Inclusion does not contain selected value " + elem.name
 							+ " for attribute " + getName());
 
 				}
 			}
 			if (!isIncluded) {
+				if (elem.sequence != 0 && getSequence() < sequence && elem.selected) {
+					result.setViolation("Inclusion does not contain selected value " + elem.name
+							+ " for attribute " + getName());
+				}
 				elem.available = false;
 				elem.sequence = sequence;
 			}
 		}
-		if (noOfIncludedElements == 1) {
+		if (noOfIncludedElements == 1) { // TODO check sequence here
 			select(lastIncluded.name, sequence);
 		}
+		setSequence(sequence);
 		return result;
 	}
 
