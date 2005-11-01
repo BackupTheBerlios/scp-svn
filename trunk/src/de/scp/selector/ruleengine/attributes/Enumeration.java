@@ -87,9 +87,11 @@ public class Enumeration extends AbstractAttribute {
 					continue itemloop;
 				}
 			}
+
 			throw new RuntimeException("element " + items[i] + " not in enumeration " + toString());
 		}
 		assigned = true;
+		setSequence(sequence);
 		return true;
 	}
 
@@ -135,7 +137,7 @@ public class Enumeration extends AbstractAttribute {
 				elem.sequence = sequence;
 			}
 		}
-		if (noOfIncludedElements == 1) { // TODO check sequence here
+		if (noOfIncludedElements == 1) {
 			select(lastIncluded.name, sequence);
 		}
 		setSequence(sequence);

@@ -139,7 +139,7 @@ public class DefaultGuiFrame extends JFrame {
 
 		kb.createRule(new Table(
 				new AbstractAttribute[] {kb.getAttribute("AOC-D"), kb.getAttribute("AOC-E")},
-				new String[][] {{"an", "aus"}, {"aus", "an"}, {"aus", "aus"}}
+				new String[][] {{"an", "aus"}, {"aus", "an"}}
 				));
 //		kb.createRule(new Rule(
 //				new Equals(kb.getAttribute("Bandbreite"), "6000"),

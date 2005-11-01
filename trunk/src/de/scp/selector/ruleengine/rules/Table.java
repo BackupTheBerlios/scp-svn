@@ -18,7 +18,8 @@ public class Table extends AbstractRule {
 
 	/**
 	 * @param columns
-	 * @param values Read index like [row][column].
+	 * @param values
+	 *            Read index like [row][column].
 	 */
 	public Table(AbstractAttribute[] columns, String[][] values) {
 		this.columns = columns;
@@ -29,12 +30,13 @@ public class Table extends AbstractRule {
 	protected Result internalExecute(int sequence) {
 		IConsequence.Result conseq = new IConsequence.Result();
 		// identify all assigned columns
-		// TODO accept only columns set earlier or the one set now (see include())
+		// TODO accept only columns set earlier or the one set now (see
+		// include())
 		Set<String>[] valueRanges = new Set[columns.length];
 		List<Integer> assignedIndices = new LinkedList<Integer>();
 		for (int i = 0; i < columns.length; i++) {
 			AbstractAttribute attr = columns[i];
-			if (attr.isAssigned()) {
+			if (attr.isAssigned() && attr.getSequence() < sequence) {
 				assignedIndices.add(new Integer(i));
 			}
 			valueRanges[i] = new HashSet<String>();
@@ -43,8 +45,8 @@ public class Table extends AbstractRule {
 		for (int i = 0; i < values.length; i++) {
 			boolean matchingRow = true;
 			for (Integer col : assignedIndices) {
-				if (columns[col.intValue()].equalsTo(values[i][col.intValue()])
-						.equals(FuzzyBoolEnum.FALSE)) {
+				if (columns[col.intValue()].equalsTo(values[i][col.intValue()]).equals(
+						FuzzyBoolEnum.FALSE)) {
 					matchingRow = false;
 					break;
 				}
@@ -57,14 +59,14 @@ public class Table extends AbstractRule {
 		}
 		// for Enumerations include values
 		for (int j = 0; j < values[0].length; j++) {
-			String[] applicableVals = (String[]) valueRanges[j]
-					.toArray(new String[valueRanges[j].size()]);
+			String[] applicableVals = (String[]) valueRanges[j].toArray(new String[valueRanges[j]
+					.size()]);
 			if (columns[j] instanceof Enumeration) {
 				Logger.getInstance().debug(
 						"Table: " + columns[j].getName() + " includes: "
 								+ Logger.arrayToString(applicableVals));
-				IConsequence.Result res = ((Enumeration) columns[j]).include(
-						applicableVals, sequence);
+				IConsequence.Result res = ((Enumeration) columns[j]).include(applicableVals,
+						sequence);
 				conseq.merge(res);
 			}
 		}
