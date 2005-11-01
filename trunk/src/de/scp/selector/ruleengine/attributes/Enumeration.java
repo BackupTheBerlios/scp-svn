@@ -6,12 +6,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.scp.selector.ruleengine.Session;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.consequences.IConsequence;
 import de.scp.selector.util.Logger;
 
-
 /**
+ * Enumerations reflect attributes with a defined set of values. For an
+ * explanation of the meaning of the often used parameter sequence see
+ * AbstractAttribute.
+ * 
  * @author Axel Sammet
  */
 public class Enumeration extends AbstractAttribute {
@@ -96,9 +100,16 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
+	 * Excludes all parameter, which are not given in the parameter
+	 * applicableVals.
+	 * 
 	 * @param applicableVals
+	 * @param sequence
 	 */
 	public IConsequence.Result include(String[] applicableVals, int sequence) {
+		// TODO A better implementation might be to identify all not
+		// applicable values and then call exclude on them (and map violation
+		// texts)
 		IConsequence.Result result = new IConsequence.Result();
 		int noOfIncludedElements = 0;
 		EnumElement lastIncluded = null;
@@ -133,7 +144,11 @@ public class Enumeration extends AbstractAttribute {
 					result.setViolation("Inclusion does not contain selected value " + elem.name
 							+ " for attribute " + getName());
 				}
+				// deselect the value if it is already selected
 				elem.available = false;
+				if (elem.selected) {
+					select("-", 0);
+				}
 				elem.sequence = sequence;
 			}
 		}
@@ -153,6 +168,16 @@ public class Enumeration extends AbstractAttribute {
 		return result;
 	}
 
+	/**
+	 * Excludes an item from this enumeration (EnumElement.applicable = false).
+	 * If only one applicable element is left it will be selected.
+	 * 
+	 * @param item
+	 *            Item to exclude.
+	 * @param sequence
+	 *            sequence
+	 * @return
+	 */
 	public IConsequence.Result exclude(String item, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
 		EnumElement anAvailableElement = null;
@@ -329,7 +354,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	@Override
-	public void clear() {
+	public void clear(Session session) {
 		for (EnumElement elem : getElements()) {
 			elem.available = true;
 			elem.sequence = 0;

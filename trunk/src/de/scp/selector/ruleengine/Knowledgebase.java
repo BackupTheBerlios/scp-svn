@@ -10,19 +10,20 @@ import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.rules.AbstractRule;
 import de.scp.selector.util.Logger;
 
-
 /**
+ * A Knowledbase contains a set of attribute- and rule defintions. Therefore it
+ * provides methods to create attributes and rules. Furthermore it implements
+ * package visible methods for a Session to manipulate its contents in
+ * accordance with the rules, i.e. the values of the attributes in that session.
+ * 
+ * @see de.scp.selector.ruleengine.Session
  * @author Axel Sammet
  */
 public class Knowledgebase {
 	private Map<String, AbstractAttribute> allAttributesMap = new HashMap<String, AbstractAttribute>();
 	private List<AbstractAttribute> allAttributes = new ArrayList<AbstractAttribute>();
 	private List<AbstractRule> allRules = new ArrayList<AbstractRule>();
-	private int sequenceId = 2;
-
-	public Knowledgebase() {
-		super();
-	}
+	private int sequenceId = 2; // TODO move to Session
 
 	public void createAttribute(AbstractAttribute attr) {
 		Logger.getInstance().info("Adding attribute: " + attr);
@@ -38,12 +39,10 @@ public class Knowledgebase {
 	}
 
 	public AbstractAttribute getAttribute(String name) {
-		// better use getAttribute.setValue...
-		// immediatly call fire rules
 		return allAttributesMap.get(name);
 	}
 
-	public void setAttribute(Session session, String name, String value) {
+	void setAttribute(Session session, String name, String value) {
 		Logger.getInstance().info("Setting attribute " + name + " = " + value);
 		AbstractAttribute attr = getAttribute(name);
 		// for everey NEW input we generate a higher number
@@ -53,6 +52,9 @@ public class Knowledgebase {
 			inputSequence = sequenceId++;
 		}
 		attr.select(value, 1);
+		// TODO rule conflicts do not result in errors at the moment, if they
+		// occur during one selection
+		// (they overwrite each other instead)
 		fireRules(session, attr, inputSequence);
 		attr.setSequence(inputSequence);
 	}
@@ -71,21 +73,23 @@ public class Knowledgebase {
 				AbstractRule.Result result = rule.execute(sequenceId);
 				noOfRulesFired++;
 				if (result.violationOccured()) {
-					Logger.getInstance().debug("Violation occured: "+result.getViolation());
+					Logger.getInstance().debug("Violation occured: " + result.getViolation());
 					attr.addViolation(result.getViolation());
 				}
 				if (result.hasFired()) {
-					Logger.getInstance().debug("Fired rule: "+rule);
+					Logger.getInstance().debug("Fired rule: " + rule);
 					it.remove();
-					notFinished= true;
+					notFinished = true;
 				}
 			}
 		} while (notFinished);
-		Logger.getInstance().info("Fired "+noOfRulesFired+ " rules in "+(System.currentTimeMillis()-time0)+" msecs");
+		Logger.getInstance().info(
+				"Fired " + noOfRulesFired + " rules in " + (System.currentTimeMillis() - time0)
+						+ " msecs");
 	}
 
 	/**
-	 * 
+	 * Clears violations for all attributes. 
 	 */
 	private void clearViolations() {
 		for (AbstractAttribute att : getAllAttributes()) {
@@ -101,11 +105,11 @@ public class Knowledgebase {
 	}
 
 	/**
-	 * 
+	 * Deletes the contents for all attributes.
 	 */
-	public void clear() {
+	void clear(Session session) {
 		for (AbstractAttribute attrib : allAttributes) {
-			attrib.clear();
+			attrib.clear(session);
 		}
 	}
 

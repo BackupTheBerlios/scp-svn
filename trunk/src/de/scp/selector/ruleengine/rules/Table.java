@@ -11,6 +11,14 @@ import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.consequences.IConsequence;
 import de.scp.selector.util.Logger;
 
+/**
+ * In a Table you can define valid value combinations for a given set of
+ * attributes. Each attribute matches a column, each row represents one valid
+ * set of values.
+ * 
+ * @author Axel Sammet
+ */
+// TODO implement a special value to ignore the column in this case
 public class Table extends AbstractRule {
 	AbstractAttribute[] columns;
 
@@ -29,9 +37,8 @@ public class Table extends AbstractRule {
 	@Override
 	protected Result internalExecute(int sequence) {
 		IConsequence.Result conseq = new IConsequence.Result();
-		// identify all assigned columns
-		// TODO accept only columns set earlier or the one set now (see
-		// include())
+		// identify all columns (attributes) assigned
+		// ignoring columns which have been set by this table
 		Set<String>[] valueRanges = new Set[columns.length];
 		List<Integer> assignedIndices = new LinkedList<Integer>();
 		for (int i = 0; i < columns.length; i++) {
@@ -59,12 +66,19 @@ public class Table extends AbstractRule {
 		}
 		// for Enumerations include values
 		for (int j = 0; j < values[0].length; j++) {
+			// ignore the currently set attribute
+			if (columns[j].getSequence() == 1)
+				continue;
 			String[] applicableVals = (String[]) valueRanges[j].toArray(new String[valueRanges[j]
 					.size()]);
 			if (columns[j] instanceof Enumeration) {
 				Logger.getInstance().debug(
 						"Table: " + columns[j].getName() + " includes: "
 								+ Logger.arrayToString(applicableVals));
+				if (applicableVals.length == 0) {
+					conseq.setViolation("Invalid value combination "
+							+ getColumnNames());
+				}
 				IConsequence.Result res = ((Enumeration) columns[j]).include(applicableVals,
 						sequence);
 				conseq.merge(res);
@@ -80,6 +94,41 @@ public class Table extends AbstractRule {
 	public List<AbstractAttribute> dependencies() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer ret = new StringBuffer("Table: ").append(getColumnNames()).append(": {");
+		for (int row = 0; row < values.length; row++) {
+			if (row != 0) {
+				ret.append(", ");
+			}
+			ret.append("{");
+			for (int col = 0; col < values[0].length; col++) {
+				if (col != 0) {
+					ret.append(", ");
+				}
+				ret.append(values[row][col]);
+			}
+			ret.append("}");
+		}
+		ret.append("}");
+		return ret.toString();
+	}
+
+	/**
+	 * @return
+	 */
+	private String getColumnNames() {
+		StringBuffer ret = new StringBuffer("{");
+		for (int col = 0; col < columns.length; col++) {
+			if (col != 0) {
+				ret.append(", ");
+			}
+			ret.append(columns[col].getName());
+		}
+		ret.append("}");
+		return ret.toString();
 	}
 
 }

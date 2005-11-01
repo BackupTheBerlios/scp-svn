@@ -26,6 +26,7 @@ import de.scp.selector.ruleengine.rules.Rule;
 import de.scp.selector.ruleengine.rules.Table;
 import de.scp.selector.ruleengine.rules.conditions.Equals;
 import de.scp.selector.ruleengine.rules.conditions.Not;
+import de.scp.selector.ruleengine.rules.consequences.AssignEquals;
 import de.scp.selector.ruleengine.rules.consequences.Exclude;
 
 
@@ -132,6 +133,8 @@ public class DefaultGuiFrame extends JFrame {
 				"Standard", "384", "512", "1024" }));
 		kb.createAttribute(new Enumeration("Online Tarif", new String[] {
 				"Flatrate", "Volume 2000", "Volume 6000", "Minutentarif", "Superfast"}));
+		kb.createAttribute(new Enumeration("Voice Tarif", new String[] {
+				"Flatrate voice", "Power volume", "Minutentarif"}));
 		kb.createAttribute(new Enumeration("AOC-D", new String[] {
 				"an", "aus"}));
 		kb.createAttribute(new Enumeration("AOC-E", new String[] {
@@ -139,7 +142,15 @@ public class DefaultGuiFrame extends JFrame {
 
 		kb.createRule(new Table(
 				new AbstractAttribute[] {kb.getAttribute("AOC-D"), kb.getAttribute("AOC-E")},
-				new String[][] {{"an", "aus"}, {"aus", "an"}}
+				new String[][] {{"an", "aus"}, {"aus", "an"}, {"aus", "aus"}}
+				));
+		kb.createRule(new Table(
+				new AbstractAttribute[] {kb.getAttribute("Voice Tarif"), kb.getAttribute("Online Tarif")},
+				new String[][] 
+				            {{"Flatrate voice", "Flatrate"}, 
+							{"Power volume", "Volume 2000"}, 
+							{"Power volume", "Volume 6000"}, 
+							{"Minutentarif", "-"}}
 				));
 //		kb.createRule(new Rule(
 //				new Equals(kb.getAttribute("Bandbreite"), "6000"),
@@ -173,6 +184,11 @@ public class DefaultGuiFrame extends JFrame {
 				new Not(new Equals(kb.getAttribute("Upstream"), "1024")),
 				new Exclude(kb.getAttribute("Online Tarif"), new String[] {"Superfast"})
 				));
+		kb.createRule(new Rule(
+				new Equals(kb.getAttribute("Upstream"), "1024"),
+				new AssignEquals(kb.getAttribute("Online Tarif"), new String[] {"Superfast"})
+				));
+		
 		Session session = new Session(kb);
 		DefaultGuiFrame frame = new DefaultGuiFrame(session);
 		frame.setVisible(true);

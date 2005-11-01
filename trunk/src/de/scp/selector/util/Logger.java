@@ -48,9 +48,9 @@ public class Logger {
 		for (int i = 0; i < items.length; i++) {
 			if (i != 0)
 				vals += "', ";
-			vals += "'" + items[i].toString();
+			vals += "'" + items[i].toString() + "'";
 		}
-		vals += "']";
+		vals += "]";
 		return vals;
 	}
 
