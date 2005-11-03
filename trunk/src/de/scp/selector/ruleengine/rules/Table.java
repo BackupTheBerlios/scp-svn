@@ -39,6 +39,7 @@ public class Table extends AbstractRule {
 		IConsequence.Result conseq = new IConsequence.Result();
 		// identify all columns (attributes) assigned
 		// ignoring columns which have been set by this table
+		int noOfMatchingRows = 0;
 		Set<String>[] valueRanges = new Set[columns.length];
 		List<Integer> assignedIndices = new LinkedList<Integer>();
 		for (int i = 0; i < columns.length; i++) {
@@ -59,6 +60,7 @@ public class Table extends AbstractRule {
 				}
 			}
 			if (matchingRow) {
+				noOfMatchingRows++;
 				for (int j = 0; j < values[0].length; j++) {
 					valueRanges[j].add(values[i][j]);
 				}
@@ -86,7 +88,8 @@ public class Table extends AbstractRule {
 		}
 		// for identified arbits set value
 		AbstractRule.Result result = new AbstractRule.Result(conseq);
-		result.setHasFired(true);
+		// if only one row or none matches we have a result
+		result.setHasFired(noOfMatchingRows<2);
 		return result;
 	}
 

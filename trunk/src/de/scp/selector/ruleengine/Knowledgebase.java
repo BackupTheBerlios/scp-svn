@@ -8,6 +8,7 @@ import java.util.Map;
 
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.rules.AbstractRule;
+import de.scp.selector.ruleengine.rules.Table;
 import de.scp.selector.util.Logger;
 
 /**
@@ -60,6 +61,7 @@ public class Knowledgebase {
 	}
 
 	private void fireRules(Session session, AbstractAttribute attr, int sequenceId) {
+		int noOfRulesChecked = 0;
 		int noOfRulesFired = 0;
 		long time0 = System.currentTimeMillis();
 		boolean notFinished;
@@ -71,25 +73,30 @@ public class Knowledgebase {
 			while (it.hasNext()) {
 				AbstractRule rule = it.next();
 				AbstractRule.Result result = rule.execute(sequenceId);
-				noOfRulesFired++;
+				noOfRulesChecked++;
 				if (result.violationOccured()) {
 					Logger.getInstance().debug("Violation occured: " + result.getViolation());
 					attr.addViolation(result.getViolation());
 				}
-				if (result.hasFired()) {
-					Logger.getInstance().debug("Fired rule: " + rule);
-					it.remove();
+				if (result.hasChangedAttributes()) {
+					// knowledge base changed => we are not finished yet
+					noOfRulesFired++;
 					notFinished = true;
+					Logger.getInstance().debug("Fired rule: " + rule);
+					// remove rules when fired
+					if (result.hasFired()) {
+						it.remove();
+					}
 				}
 			}
 		} while (notFinished);
 		Logger.getInstance().info(
-				"Fired " + noOfRulesFired + " rules in " + (System.currentTimeMillis() - time0)
-						+ " msecs");
+				"(" + noOfRulesChecked + " / " + noOfRulesFired + ") (checked / fired) rules in "
+						+ (System.currentTimeMillis() - time0) + " msecs");
 	}
 
 	/**
-	 * Clears violations for all attributes. 
+	 * Clears violations for all attributes.
 	 */
 	private void clearViolations() {
 		for (AbstractAttribute att : getAllAttributes()) {
