@@ -1,6 +1,14 @@
 <html>
 <link rel="stylesheet" type="text/css" href="scpstyle.css" />
-<h1>SCP Selector with Constraint Propagator</h1>
+<title>SCP Selector with Constraint Propagation</title>
+
+<body>
+<div>
+<img src="spiral.png" align="right"/>
+<h1>
+SCP Selector with Constraint Propagation
+</h1>
+</div>
 <p>
 SCP should provide a simple interface to define business rules. In order to acchieve this, attributes and rules will be expressed in a simple syntax (in code at the moment), building the so called knowledge base. With the API an application can check its current selections (values) for the predefined attributes against the knowledge base.<br>
 SCP will then
@@ -71,12 +79,10 @@ frame.setVisible(true);
 <p>
 The class DefaultGuiFrame can be found in the package <code>de.scp.selector.gui</code>. The result should be something like this:
 </p>
-<div align="middle"><img src="./gui_table_rule.PNG"/></div>
+<div align="middle"><img src="./gui_table_rule.png"/></div>
 <p> If we select a sportscar the engine is instantly selected with the only available value of 220 hp. Selecting the drop down box for the color indicates that this car is only available in red or black.
 </p>
 <p> If we select now Radio with no, this is perfectly ok with the rules. But as we select Navigation with yes a violation is shown.
-<div align="center"><img src="./gui_violation.PNG"/></div>
-
-<body>
+<div align="center"><img src="./gui_violation.png"/></div>
 </body>
 </html>
