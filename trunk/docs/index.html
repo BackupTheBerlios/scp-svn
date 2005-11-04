@@ -1,20 +1,81 @@
 <html>
 <link rel="stylesheet" type="text/css" href="scpstyle.css" />
 <h1>SCP Selector with Constraint Propagator</h1>
-<h2>Header 2</h2>
 <p>
-Ein ganz langer Text, der hoffentlich auch mal einen Zeilenumbruch provoziert. 
-Dazu muss hier aber noch ein wenig mehr zusammen kommen. 
-Also schreiben wir einfach mal weiter.
+SCP should provide a simple interface to define business rules. In order to acchieve this, attributes and rules will be expressed in a simple syntax (in code at the moment), building the so called knowledge base. With the API an application can check its current selections (values) for the predefined attributes against the knowledge base.<br>
+SCP will then
+<li> check if any of the rules in the knowledgebase has been violated </li>
+<li> try to narrow the possible values of dependent attributes </li><br>
+Therebye the user of the application is guided towards a valid solution.
+
 </p>
-<p class="code">
-for (i=0; i<10; i++) {<br>
-}
+<p>
+Let us assume, that we want to build an application to sell cars. We have a set of different cars, which can be ordered in different configurations. If we want to use SCP for this we have to define a new knowledge base first:
 </p>
-<text>
-Zeile1
-Zeile2
-</text>
+<pre class="code">
+Knowledgebase kb = new Knowledgebase();
+</pre>
+Now we want to fill the knowledge base with our business rules. At the moment this can be done in code only. We start by adding some attributes to the knowledge base:
+<pre class="code">
+kb.createAttribute(new Enumeration("Car", new String[] 
+  { "Sportscar", "Van", "Compact car"}));
+kb.createAttribute(new Enumeration("Engine power", new String[] {
+  "55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));
+kb.createAttribute(new Enumeration("Color", new String[] {
+  "red", "black", "blue", "grey", "green"}));
+kb.createAttribute(new Enumeration("Navigation", new String[] {
+  "yes", "no"}));
+kb.createAttribute(new Enumeration("Radio", new String[] {
+  "no", "simple", "comfort"}));
+</pre>
+<p>
+This means we want to configure the type, the power and the color of the car. Furthermore we have some extras (i.e. Navigation and radio).
+</p>
+<p>
+Now we want to define some rules:
+</p>
+<pre class="code">
+kb.createRule(new Table(new AbstractAttribute[] {
+   kb.getAttribute("Car"), kb.getAttribute("Engine power"), kb.getAttribute("Color")
+  },
+  new String[][] 
+      {"Sportscar", "220 hp", "red"}, 
+      {"Sportscar", "220 hp", "black"}, 
+      {"Van", "65 hp", "black"}, 
+      {"Van", "90 hp", "blue"}, 
+      {"Van", "115 hp", "grey"}, 
+      {"Compact car", "65 hp", "grey"},
+      {"Compact car", "65 hp", "grey"},
+      {"Compact car", "55 hp", "grey"},
+      {"Compact car", "55 hp", "green"}}
+));
+
+kb.createRule(new Rule(
+  new Equals(kb.getAttribute("Navigation"), "yes"),
+  new Exclude(kb.getAttribute("Radio"), new String[] {"no"})
+));
+</pre>
+<p> The first rule is a table describing valid combinations of car type, engine and color. The second statement defines a simple rule saying
+</p>
+<p>
+If we want navigation, then we are obliged to take a radio as well.
+</p>
+<p>
+Now we can take a look at the result with the default gui. 
+</p>
+<pre class="code">
+Session session = new Session(kb);
+DefaultGuiFrame frame = new DefaultGuiFrame(session);
+frame.setVisible(true);
+</pre>
+<p>
+The class DefaultGuiFrame can be found in the package <code>de.scp.selector.gui</code>. The result should be something like this:
+</p>
+<div align="middle"><img src="gui_table_rule.png"/></div>
+<p> If we select a sportscar the engine is instantly selected with the only available value of 220 hp. Selecting the drop down box for the color indicates that this car is only available in red or black.
+</p>
+<p> If we select now Radio with no, this is perfectly ok with the rules. But as we select Navigation with yes a violation is shown.
+<div align="center"><img src="gui_violation.png"/></div>
 
 <body>
 </body>
