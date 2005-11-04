@@ -76,6 +76,7 @@ public class Enumeration extends AbstractAttribute {
 	 * 
 	 * @param items
 	 */
+	// TODO implement deselecting
 	public boolean select(String[] items, int sequence) {
 		for (EnumElement elem : getElements())
 			elem.selected = false;
@@ -86,6 +87,9 @@ public class Enumeration extends AbstractAttribute {
 				if (items[i].equals(elem.name)) {
 					if (getSequence() != 0 && getSequence() < sequence && !elem.available) {
 						return false;
+					}
+					if (elem.equals(emptyElement)) {
+						assigned = false;
 					}
 					elem.selected = true;
 					continue itemloop;
@@ -107,55 +111,15 @@ public class Enumeration extends AbstractAttribute {
 	 * @param sequence
 	 */
 	public IConsequence.Result include(String[] applicableVals, int sequence) {
-		// TODO A better implementation might be to identify all not
-		// applicable values and then call exclude on them (and map violation
-		// texts)
+		// identify all not applicable values and then call exclude on them 
 		IConsequence.Result result = new IConsequence.Result();
-		int noOfIncludedElements = 0;
-		EnumElement lastIncluded = null;
-		for (EnumElement elem : getElements()) {
-			if (elem.equals(emptyElement)) {
-				continue;
+		elements: for (EnumElement element : getElements()) {
+			for (String elementToInclude : applicableVals) {
+				if (element.name.equals(elementToInclude))
+					continue elements;
 			}
-			boolean isIncluded = false;
-			for (int i = 0; i < applicableVals.length; i++) {
-				if (elem.name.equals(applicableVals[i])) {
-					if (elem.sequence != 0 && getSequence() < sequence && !elem.available) {
-						result.setViolation("Inclusion of excluded value " + elem.name
-								+ " for attribute " + getName());
-					}
-					isIncluded = true;
-					noOfIncludedElements++;
-					lastIncluded = elem;
-					if (elem.available == false) {
-						elem.available = true;
-						elem.sequence = sequence;
-					}
-					break;
-				}
-				else if (elem.sequence != 0 && getSequence() < sequence && elem.selected) {
-					result.setViolation("Inclusion does not contain selected value " + elem.name
-							+ " for attribute " + getName());
-
-				}
-			}
-			if (!isIncluded) {
-				if (elem.sequence != 0 && getSequence() < sequence && elem.selected) {
-					result.setViolation("Inclusion does not contain selected value " + elem.name
-							+ " for attribute " + getName());
-				}
-				// deselect the value if it is already selected
-				elem.available = false;
-				if (elem.selected) {
-					select("-", 0);
-				}
-				elem.sequence = sequence;
-			}
+			result.merge(exclude(element.name, sequence));
 		}
-		if (noOfIncludedElements == 1) {
-			select(lastIncluded.name, sequence);
-		}
-		setSequence(sequence);
 		return result;
 	}
 
@@ -183,14 +147,17 @@ public class Enumeration extends AbstractAttribute {
 		EnumElement anAvailableElement = null;
 		int noOfAvailableElements = 0;
 		for (EnumElement elem : getElements()) {
+			// do not exclude the empty element
+			if (elem.equals(emptyElement))
+				continue;
 			if (item.equals(elem.name)) {
 				if (getSequence() != 0 && getSequence() < sequence && elem.selected) {
-					result.setViolation("Exclude " + item + " from " + getName()
+					result.setViolation("Exclude '" + item + "' from attribute " + getName()
 							+ " conflicts with actual value.");
 					return result;
 				}
 				if (elem.selected) {
-					select("-", sequence);
+					select(emptyElement.name, sequence);
 				}
 				elem.exclude(sequence);
 			}

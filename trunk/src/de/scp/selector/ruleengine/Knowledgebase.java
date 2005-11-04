@@ -8,7 +8,6 @@ import java.util.Map;
 
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.rules.AbstractRule;
-import de.scp.selector.ruleengine.rules.Table;
 import de.scp.selector.util.Logger;
 
 /**

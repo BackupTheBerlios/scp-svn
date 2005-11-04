@@ -1,0 +1,25 @@
+OL,UL,P,BODY,TD,TR,TH,FORM,LI,INPUT,TEXTAREA,SELECT,SPAN { 
+  font-family: verdana,arial,helvetica,sans-serif; 
+  font-size:12px; 
+  color: #333333; }
+
+H1 { font-size: 16px; background-color: #DDDDFF; }
+H2 { font-size: 14px; background-color: #DDDDFF; }
+H3 { font-size: 12px; background-color: #DDDDFF; }
+
+p {text-allign: justify}
+
+p.code {
+  padding: 5px 5px 5px 5px;
+  margin-left: 0.5cm;
+  margin-right: 0.5cm;
+  font-family: courier;
+  font-size: 12.px;
+  text-allignment: justify;
+  background-color: #DDDDDD;
+  left: 10%;
+  border: #888888,solid,thin;
+  border-color: #888888;
+  border-style: solid;
+  border-width: thin;
+}
