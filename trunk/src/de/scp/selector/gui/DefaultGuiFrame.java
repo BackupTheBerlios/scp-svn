@@ -65,7 +65,7 @@ public class DefaultGuiFrame extends JFrame {
 	private JPanel getButtonPanel() {
 		JPanel buttonPanel = new JPanel(new FlowLayout());
 		JPanel innerPanel = new JPanel(new GridLayout());
-		JButton sendButton = new JButton("löschen");
+		JButton sendButton = new JButton("clear");
 		sendButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				session.clear();
@@ -127,68 +127,34 @@ public class DefaultGuiFrame extends JFrame {
 	 */
 	public static void main(String[] args) {
 		Knowledgebase kb = new Knowledgebase();
-		kb.createAttribute(new Enumeration("Bandbreite", new String[] { "1000",
-				"2000", "3000", "6000" }));
-		kb.createAttribute(new Enumeration("Upstream", new String[] {
-				"Standard", "384", "512", "1024" }));
-		kb.createAttribute(new Enumeration("Online Tarif", new String[] {
-				"Flatrate", "Volume 2000", "Volume 6000", "Minutentarif", "Superfast"}));
-		kb.createAttribute(new Enumeration("Voice Tarif", new String[] {
-				"Flatrate voice", "Power volume", "Minutentarif"}));
-		kb.createAttribute(new Enumeration("AOC-D", new String[] {
-				"an", "aus"}));
-		kb.createAttribute(new Enumeration("AOC-E", new String[] {
-				"an", "aus"}));
+		kb.createAttribute(new Enumeration("Car", new String[] { "Sportscar",
+				"Van", "Compact car"}));
+		kb.createAttribute(new Enumeration("Engine power", new String[] {
+				"55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));
+		kb.createAttribute(new Enumeration("Color", new String[] {
+				"red", "black", "blue", "grey", "green"}));
+		kb.createAttribute(new Enumeration("Navigation", new String[] {
+				"yes", "no"}));
+		kb.createAttribute(new Enumeration("Radio", new String[] {
+				"no", "simple", "comfort"}));
 
 		kb.createRule(new Table(
-				new AbstractAttribute[] {kb.getAttribute("AOC-D"), kb.getAttribute("AOC-E")},
-				new String[][] {{"an", "aus"}, {"aus", "an"}, {"aus", "aus"}}
-				));
-		kb.createRule(new Table(
-				new AbstractAttribute[] {kb.getAttribute("Voice Tarif"), kb.getAttribute("Online Tarif")},
-				new String[][] 
-				            {{"Flatrate voice", "Flatrate"}, 
-							{"Power volume", "Volume 2000"}, 
-							{"Power volume", "Volume 6000"}, 
-							{"Minutentarif", "-"}}
-				));
-//		kb.createRule(new Rule(
-//				new Equals(kb.getAttribute("Bandbreite"), "6000"),
-//				new AssignEquals(kb.getAttribute("Upstream"), "1024")
-//				));
-		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Bandbreite"), "2000"),
-				new Exclude(kb.getAttribute("Upstream"), new String[] {"512", "1024"})
+				new AbstractAttribute[] {kb.getAttribute("Car"), kb.getAttribute("Engine power"), kb.getAttribute("Color")},
+				new String[][] {
+						{"Sportscar", "220 hp", "red"}, 
+						{"Sportscar", "220 hp", "black"}, 
+						{"Van", "65 hp", "black"}, 
+						{"Van", "90 hp", "blue"}, 
+						{"Van", "115 hp", "grey"}, 
+						{"Compact car", "65 hp", "grey"},
+						{"Compact car", "65 hp", "grey"},
+						{"Compact car", "55 hp", "grey"},
+						{"Compact car", "55 hp", "green"}}
 				));
 		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Bandbreite"), "3000"),
-				new Exclude(kb.getAttribute("Upstream"), new String[] {"384", "1024"})
+				new Equals(kb.getAttribute("Navigation"), "yes"),
+				new Exclude(kb.getAttribute("Radio"), new String[] {"no"})
 				));
-		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Bandbreite"), "6000"),
-				new Exclude(kb.getAttribute("Upstream"), new String[] {"512", "384"})
-				));
-		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Bandbreite"), "1000"),
-				new Exclude(kb.getAttribute("Upstream"), new String[] {"384", "512", "1024"})
-				));
-		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Bandbreite"), "3000"),
-				new Exclude(kb.getAttribute("Online Tarif"), new String[] {"Minutentarif", "Flatrate"})
-				));
-		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Upstream"), "512"),
-				new Exclude(kb.getAttribute("Online Tarif"), new String[] {"Volume 2000"})
-				));
-		kb.createRule(new Rule(
-				new Not(new Equals(kb.getAttribute("Upstream"), "1024")),
-				new Exclude(kb.getAttribute("Online Tarif"), new String[] {"Superfast"})
-				));
-		kb.createRule(new Rule(
-				new Equals(kb.getAttribute("Upstream"), "1024"),
-				new AssignEquals(kb.getAttribute("Online Tarif"), new String[] {"Superfast"})
-				));
-		
 		Session session = new Session(kb);
 		DefaultGuiFrame frame = new DefaultGuiFrame(session);
 		frame.setVisible(true);
