@@ -17,19 +17,32 @@
     <!-- ================================= 
           target: default              
          ================================= -->
-    <target name="default" depends="depends">
-        <javac srcdir="src"
-         destdir="bin"
-        	
-         debug="on"
-		/>
+    <target name="default" depends="serverapi,tests,server,clientapi">
     </target>
 
-    <!-- - - - - - - - - - - - - - - - - - 
-          target: depends                      
-         - - - - - - - - - - - - - - - - - -->
-    <target name="depends">
+	<!-- API for the ruleengine -->
+    <target name="serverapi">
+ 		<javac srcdir="src" destdir="bin"/>
+    	<jar destfile="deploy/scpapi.jar" basedir="bin"/>
     </target>
+	
+	<target name="tests">
+	</target>
+	
+	<!-- Servlet dispatcher for a multisession server -->
+	<target name="server">
+	</target>
+	
+	<!-- Client API to communicate with servlet -->
+	<target name="clientapi">
+	</target>
 
+	<target name="clean">
+		<delete>
+			<fileset dir="bin">
+			    <include name="**/*.*"/>
+			</fileset>
+		</delete>
+	</target>
 </project>
 

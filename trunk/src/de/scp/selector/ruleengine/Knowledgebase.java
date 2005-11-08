@@ -16,14 +16,13 @@ import de.scp.selector.util.Logger;
  * package visible methods for a Session to manipulate its contents in
  * accordance with the rules, i.e. the values of the attributes in that session.
  * 
- * @see de.scp.selector.ruleengine.Session
+ * @see de.scp.selector.ruleengine.SessionContents
  * @author Axel Sammet
  */
 public class Knowledgebase {
 	private Map<String, AbstractAttribute> allAttributesMap = new HashMap<String, AbstractAttribute>();
 	private List<AbstractAttribute> allAttributes = new ArrayList<AbstractAttribute>();
 	private List<AbstractRule> allRules = new ArrayList<AbstractRule>();
-	private int sequenceId = 2; // TODO move to Session
 
 	public void createAttribute(AbstractAttribute attr) {
 		Logger.getInstance().info("Adding attribute: " + attr);
@@ -42,14 +41,14 @@ public class Knowledgebase {
 		return allAttributesMap.get(name);
 	}
 
-	void setAttribute(Session session, String name, String value) {
+	void setAttribute(SessionContents session, String name, String value) {
 		Logger.getInstance().info("Setting attribute " + name + " = " + value);
 		AbstractAttribute attr = getAttribute(name);
 		// for everey NEW input we generate a higher number
 		// rules from lower sequences dominate later inputs
 		int inputSequence = attr.getSequence();
 		if (inputSequence == 0) {
-			inputSequence = sequenceId++;
+			inputSequence = session.getNextSequenceId();
 		}
 		attr.select(value, 1);
 		// TODO rule conflicts do not result in errors at the moment, if they
@@ -59,7 +58,7 @@ public class Knowledgebase {
 		attr.setSequence(inputSequence);
 	}
 
-	private void fireRules(Session session, AbstractAttribute attr, int sequenceId) {
+	private void fireRules(SessionContents session, AbstractAttribute attr, int sequenceId) {
 		int noOfRulesChecked = 0;
 		int noOfRulesFired = 0;
 		long time0 = System.currentTimeMillis();
@@ -113,7 +112,7 @@ public class Knowledgebase {
 	/**
 	 * Deletes the contents for all attributes.
 	 */
-	void clear(Session session) {
+	void clear(SessionContents session) {
 		for (AbstractAttribute attrib : allAttributes) {
 			attrib.clear(session);
 		}

@@ -4,6 +4,9 @@
 
 <body>
 
+<div id="left">
+<img src="spiral.png"/>
+
 <div id="Navigation">
 <b>Navigation:</b>
 <p>
@@ -11,34 +14,34 @@
 <a href="http://developer.berlios.de/project/showfiles.php?group_id=4796">Download</a>
 </p>
 </div>
+</div>
 
 <div id="right">
-<img src="spiral.png"/>
 </div>
 
 <div id="Contents">
 <h1>
 SCP Selector with Constraint Propagation
 </h1>
-
 <p>
-SCP should provide a simple interface to define business rules. In order to acchieve this, attributes and rules will be expressed in a simple syntax (in code at the moment), building the so called knowledge base. With the API an application can check its current selections (values) for the predefined attributes against the knowledge base.<br>
+SCP provides a simple interface to define business rules. In order to acchieve this, attributes and rules will be expressed in a simple syntax, building the so called knowledge base. With the API an application can check its current selections (values) for the predefined attributes against the knowledge base.<br>
 SCP will then
 <li> check if any of the rules in the knowledgebase has been violated </li>
 <li> try to narrow the possible values of dependent attributes </li><br>
 Therebye the user of the application is guided towards a valid solution.
-
 </p>
+
+<h2>Example</h2>
 <p>
-Let us assume, that we want to build an application to sell cars. We have a set of different cars, which can be ordered in different configurations. If we want to use SCP for this we have to define a new knowledge base first:
+Let us assume, that we want to build an application to sell cars. We have a set of different cars, which can be ordered in different configurations. Using SCP this means, we have to define a new knowledge base first:
 </p>
 <pre class="code">
 Knowledgebase kb = new Knowledgebase();
 </pre>
 Now we want to fill the knowledge base with our business rules. At the moment this can be done in code only. We start by adding some attributes to the knowledge base:
 <pre class="code">
-kb.createAttribute(new Enumeration("Car", new String[] 
-  { "Sportscar", "Van", "Compact car"}));
+kb.createAttribute(new Enumeration("Car", new String[] { 
+  "Sportscar", "Van", "Compact car"}));
 kb.createAttribute(new Enumeration("Engine power", new String[] {
   "55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));
 kb.createAttribute(new Enumeration("Color", new String[] {
@@ -60,7 +63,7 @@ kb.createRule(new Table(new AbstractAttribute[] {
       kb.getAttribute("Engine power"), 
       kb.getAttribute("Color")
   },
-  new String[][] 
+  new String[][] { 
       {"Sportscar", "220 hp", "red"}, 
       {"Sportscar", "220 hp", "black"}, 
       {"Van", "65 hp", "black"}, 
@@ -69,15 +72,15 @@ kb.createRule(new Table(new AbstractAttribute[] {
       {"Compact car", "65 hp", "grey"},
       {"Compact car", "65 hp", "grey"},
       {"Compact car", "55 hp", "grey"},
-      {"Compact car", "55 hp", "green"}}
-));
+      {"Compact car", "55 hp", "green"}
+}));
 
 kb.createRule(new Rule(
   new Equals(kb.getAttribute("Navigation"), "yes"),
   new Exclude(kb.getAttribute("Radio"), new String[] {"no"})
 ));
 </pre>
-<p> The first rule is a table describing valid combinations of car type, engine and color. The second statement defines a simple rule saying
+<p> The first rule is a table describing valid combinations of car type, engine and color. The second statement defines a simple rule saying:
 </p>
 <p>
 If we want navigation, then we are obliged to take a radio as well.
@@ -96,7 +99,7 @@ The class DefaultGuiFrame can be found in the package <code>de.scp.selector.gui<
 <div align="middle"><img src="./gui_table_rule.PNG"/></div>
 <p> If we select a sportscar the engine is instantly selected with the only available value of 220 hp. Selecting the drop down box for the color indicates that this car is only available in red or black.
 </p>
-<p> If we select now Radio with no, this is perfectly ok with the rules. But as we select Navigation with yes a violation is shown.
+<p> Now if we select Radio with no, this is perfectly ok with the rules. But as we select Navigation with yes a violation is shown.
 <div align="center" <img src="./gui_violation.PNG"/></div>
 </div>
 </body>

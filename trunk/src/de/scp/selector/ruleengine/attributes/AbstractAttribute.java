@@ -3,7 +3,7 @@ package de.scp.selector.ruleengine.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.scp.selector.ruleengine.Session;
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.consequences.IConsequence;
 
@@ -79,6 +79,6 @@ public abstract class AbstractAttribute {
 	/**
 	 * Clears the attribute
 	 */
-	public abstract void clear(Session session);
+	public abstract void clear(SessionContents session);
 	
 }

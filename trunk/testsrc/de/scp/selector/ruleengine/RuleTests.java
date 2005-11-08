@@ -1,7 +1,7 @@
 package de.scp.selector.ruleengine;
 
 import de.scp.selector.ruleengine.Knowledgebase;
-import de.scp.selector.ruleengine.Session;
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.ruleengine.rules.Rule;
 import de.scp.selector.ruleengine.rules.conditions.And;
@@ -59,7 +59,7 @@ public class RuleTests extends TestCase {
 			kb.createRule(new Rule(new Equals(kb.getAttribute("enum"+(i-1)), "a"), new AssignEquals(
 					kb.getAttribute("enum"+(i)), new String[] { "a" })));
 		}
-		Session session = new Session(kb);
+		SessionContents session = new SessionContents(kb);
 		session.setAttribute("enum0","a");
 	}
 

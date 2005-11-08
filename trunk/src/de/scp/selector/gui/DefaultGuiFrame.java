@@ -20,13 +20,12 @@ import javax.swing.border.EtchedBorder;
 
 import de.scp.selector.ruleengine.Knowledgebase;
 import de.scp.selector.ruleengine.Session;
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.ruleengine.rules.Rule;
 import de.scp.selector.ruleengine.rules.Table;
 import de.scp.selector.ruleengine.rules.conditions.Equals;
-import de.scp.selector.ruleengine.rules.conditions.Not;
-import de.scp.selector.ruleengine.rules.consequences.AssignEquals;
 import de.scp.selector.ruleengine.rules.consequences.Exclude;
 
 

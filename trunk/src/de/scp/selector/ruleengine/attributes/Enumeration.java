@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.scp.selector.ruleengine.Session;
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.consequences.IConsequence;
 import de.scp.selector.util.Logger;
@@ -321,7 +321,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	@Override
-	public void clear(Session session) {
+	public void clear(SessionContents session) {
 		for (EnumElement elem : getElements()) {
 			elem.available = true;
 			elem.sequence = 0;

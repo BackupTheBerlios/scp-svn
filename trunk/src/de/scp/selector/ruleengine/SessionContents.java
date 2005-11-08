@@ -7,7 +7,8 @@ import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 /**
  * A Session is a container for all stateful information of attributes
  * <li>selections</li>
- * <li>status ...</li><br>
+ * <li>status ...</li>
+ * <br>
  * and rules
  * <li>has fired ...</li>
  * <br>
@@ -17,28 +18,15 @@ import de.scp.selector.ruleengine.attributes.AbstractAttribute;
  * @author Axel Sammet
  */
 // TODO implement usage of session in Enumeration
-public class Session {
-	private Knowledgebase kb;
+public class SessionContents {
+	private int sequenceId = 2;
 
-	public Session(Knowledgebase kb) {
-		this.kb = kb;
+	SessionContents() {
+	}
+	
+	public int getNextSequenceId() {
+		return sequenceId++;
 	}
 
-	public void setAttribute(String name, String value) {
-		kb.setAttribute(this, name, value);
-	}
 
-	/**
-	 * 
-	 */
-	public void clear() {
-		kb.clear(this);
-	}
-
-	/**
-	 * @return
-	 */
-	public List<AbstractAttribute> getAllAttributes() {
-		return kb.getAllAttributes();
-	}
 }

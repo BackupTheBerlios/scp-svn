@@ -7,11 +7,14 @@ H1 { font-size: 16px; background-color: #DDDDFF; }
 H2 { font-size: 14px; background-color: #DDDDFF; }
 H3 { font-size: 12px; background-color: #DDDDFF; }
 
-div#Navigation {
+div#left {
   float: left;
-  width: 10em;
-  background-color: #EEEEEE;
-  padding: 5px 0px 5px 5px
+  width: 160px;
+}
+
+div#Navigation {
+  background-color: #DDDDEE;
+  padding: 5px 5px 5px 5px;
 }
 
 div#Navigation li {
@@ -31,9 +34,11 @@ div#right {
 }
 
 div#Contents {
-  margin-left: 11em;
-  margin-right: 11em;
-  border 1px dashed #000000
+  background-image: url(./background.jpg);
+  margin-left: 170px;
+  margin-right: 170px;
+  border 1px dashed #000000;
+  padding: 0px 5px 5px 5px;
 }
 
 div#Contents p {
@@ -50,7 +55,7 @@ pre.code {
   background-color: #DDDDDD;
   color: #111199;
   left: 10%;
-  border: #888888 solid thin;
+  border: #888888 solid 1px;
 }
 
 img {background-color: #dddddd;}
