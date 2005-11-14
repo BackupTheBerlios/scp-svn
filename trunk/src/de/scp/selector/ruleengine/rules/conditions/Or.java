@@ -1,6 +1,8 @@
 package de.scp.selector.ruleengine.rules.conditions;
 
-public class Or extends AbstractBinaryOperator  {
+import de.scp.selector.ruleengine.SessionContents;
+
+public class Or extends AbstractBinaryOperator {
 
 	public Or(IFuzzyBoolComponent lhs, IFuzzyBoolComponent rhs) {
 		super(lhs, rhs);
@@ -9,11 +11,13 @@ public class Or extends AbstractBinaryOperator  {
 	/**
 	 * @see de.scp.selector.ruleengine.rules.conditions.IFuzzyBoolComponent#evaluate()
 	 */
-	public FuzzyBoolEnum evaluate() {
-		FuzzyBoolEnum lval = lhs.evaluate();
-		FuzzyBoolEnum rval = rhs.evaluate();
-		// shortcut one is true
-		if (lval == FuzzyBoolEnum.TRUE || rval == FuzzyBoolEnum.TRUE)
+	public FuzzyBoolEnum evaluate(SessionContents sc) {
+		// first check shortcuts (one true => result true)
+		FuzzyBoolEnum lval = lhs.evaluate(sc);
+		if (lval == FuzzyBoolEnum.TRUE)
+			return FuzzyBoolEnum.TRUE;
+		FuzzyBoolEnum rval = rhs.evaluate(sc);
+		if (rval == FuzzyBoolEnum.TRUE)
 			return FuzzyBoolEnum.TRUE;
 		// both false
 		if (lval == FuzzyBoolEnum.FALSE && rval == FuzzyBoolEnum.FALSE)

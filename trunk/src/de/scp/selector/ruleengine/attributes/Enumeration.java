@@ -10,6 +10,7 @@ import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.consequences.IConsequence;
 import de.scp.selector.util.Logger;
+import de.scp.selector.util.PublicCloneable;
 
 /**
  * Enumerations reflect attributes with a defined set of values. For an
@@ -20,13 +21,10 @@ import de.scp.selector.util.Logger;
  */
 public class Enumeration extends AbstractAttribute {
 
-	public static class EnumElement {
+	public static class EnumElement implements PublicCloneable {
 		public String name;
-
 		public boolean available = true;
-
 		public boolean selected;
-
 		private int sequence;
 
 		public EnumElement(String name) {
@@ -37,6 +35,22 @@ public class Enumeration extends AbstractAttribute {
 			available = false;
 			sequence = seq;
 		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (!(obj instanceof EnumElement))
+				return false;
+			EnumElement el = (EnumElement) obj;
+			return (el.available==available && el.selected== selected &&el.name.equals(name));
+		}
+
+		public PublicCloneable clone() {
+			EnumElement ret = new EnumElement(this.name);
+			ret.available = this.available;
+			ret.selected = this.selected;
+			ret.sequence = this.sequence;
+			return ret;
+		}
 
 		public String toString() {
 			return name;
@@ -46,17 +60,36 @@ public class Enumeration extends AbstractAttribute {
 			return name + (selected ? "*" : " ") + (available ? "   " : "n/a");
 		}
 	}
+	
+	private static class EnumerationContents implements PublicCloneable {
+		private List<EnumElement> elements = new ArrayList<EnumElement>();
+		public List<EnumElement> getElements() {
+			return elements;
+		}
+		public void init(String[] elementNames) {
+			elements.add(emptyElement);
+			elements.get(0).selected = true;
+			for (int i = 0; i < elementNames.length; i++) {
+				elements.add(new EnumElement(elementNames[i]));
+			}
+		}
+		
+		@Override
+		public PublicCloneable clone()  {
+			EnumerationContents ret = new EnumerationContents();
+			for (Iterator<EnumElement> iter = elements.iterator(); iter.hasNext();) {
+				EnumElement element = iter.next();
+			}
+			return ret;
+		}
+	}
 
-	private Enumeration.EnumElement emptyElement = new Enumeration.EnumElement("-");
-	ArrayList<EnumElement> elements = new ArrayList<EnumElement>();
+	private static Enumeration.EnumElement emptyElement = new Enumeration.EnumElement("-");
+	String[] elementNames;
 
 	public Enumeration(String name, String[] allElements) {
 		super(name);
-		elements.add(emptyElement);
-		elements.get(0).selected = true;
-		for (int i = 0; i < allElements.length; i++) {
-			elements.add(new EnumElement(allElements[i]));
-		}
+		elementNames = allElements;
 	}
 
 	/**
@@ -66,8 +99,8 @@ public class Enumeration extends AbstractAttribute {
 	 * @param itemName
 	 */
 	// TODO check visibility
-	public boolean select(String itemName, int sequence) {
-		return select(new String[] { itemName }, sequence);
+	public boolean select(SessionContents sc, String itemName, int sequence) {
+		return select(sc, new String[] { itemName }, sequence);
 	}
 
 	/**
@@ -76,14 +109,13 @@ public class Enumeration extends AbstractAttribute {
 	 * 
 	 * @param items
 	 */
-	// TODO implement deselecting
-	public boolean select(String[] items, int sequence) {
-		for (EnumElement elem : getElements())
+	public boolean select(SessionContents sc, String[] items, int sequence) {
+		for (EnumElement elem : getElements(sc))
 			elem.selected = false;
 		if (items == null)
 			return true;
 		itemloop: for (int i = 0; i < items.length; i++) {
-			for (EnumElement elem : getElements()) {
+			for (EnumElement elem : getElements(sc)) {
 				if (items[i].equals(elem.name)) {
 					if (getSequence() != 0 && getSequence() < sequence && !elem.available) {
 						return false;
@@ -95,7 +127,6 @@ public class Enumeration extends AbstractAttribute {
 					continue itemloop;
 				}
 			}
-
 			throw new RuntimeException("element " + items[i] + " not in enumeration " + toString());
 		}
 		assigned = true;
@@ -110,23 +141,23 @@ public class Enumeration extends AbstractAttribute {
 	 * @param applicableVals
 	 * @param sequence
 	 */
-	public IConsequence.Result include(String[] applicableVals, int sequence) {
-		// identify all not applicable values and then call exclude on them 
+	public IConsequence.Result include(SessionContents sc, String[] applicableVals, int sequence) {
+		// identify all not applicable values and then call exclude on them
 		IConsequence.Result result = new IConsequence.Result();
-		elements: for (EnumElement element : getElements()) {
+		elements: for (EnumElement element : getElements(sc)) {
 			for (String elementToInclude : applicableVals) {
 				if (element.name.equals(elementToInclude))
 					continue elements;
 			}
-			result.merge(exclude(element.name, sequence));
+			result.merge(exclude(sc, element.name, sequence));
 		}
 		return result;
 	}
 
-	public IConsequence.Result exclude(String[] items, int sequence) {
+	public IConsequence.Result exclude(SessionContents sc, String[] items, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
 		for (int i = 0; i < items.length; i++) {
-			IConsequence.Result singleRes = exclude(items[i], sequence);
+			IConsequence.Result singleRes = exclude(sc, items[i], sequence);
 			result.merge(singleRes);
 		}
 		return result;
@@ -142,11 +173,11 @@ public class Enumeration extends AbstractAttribute {
 	 *            sequence
 	 * @return
 	 */
-	public IConsequence.Result exclude(String item, int sequence) {
+	public IConsequence.Result exclude(SessionContents sc, String item, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
 		EnumElement anAvailableElement = null;
 		int noOfAvailableElements = 0;
-		for (EnumElement elem : getElements()) {
+		for (EnumElement elem : getElements(sc)) {
 			// do not exclude the empty element
 			if (elem.equals(emptyElement))
 				continue;
@@ -157,7 +188,7 @@ public class Enumeration extends AbstractAttribute {
 					return result;
 				}
 				if (elem.selected) {
-					select(emptyElement.name, sequence);
+					select(sc, emptyElement.name, sequence);
 				}
 				elem.exclude(sequence);
 			}
@@ -169,7 +200,7 @@ public class Enumeration extends AbstractAttribute {
 		}
 		// if only one available elment is left, select it
 		if (noOfAvailableElements == 1) {
-			boolean selectionValid = select(anAvailableElement.name, sequence);
+			boolean selectionValid = select(sc, anAvailableElement.name, sequence);
 			if (!selectionValid) {
 				result.setViolation("Exclude " + item + " from " + getName()
 						+ " conflicts with actual value.");
@@ -178,11 +209,11 @@ public class Enumeration extends AbstractAttribute {
 		return result;
 	}
 
-	public FuzzyBoolEnum equalsTo(String item) {
+	public FuzzyBoolEnum equalsTo(SessionContents sc, String item) {
 		if (!assigned)
 			return FuzzyBoolEnum.UNDEFINED;
 		FuzzyBoolEnum foundSelection = FuzzyBoolEnum.FALSE;
-		for (EnumElement elem : getElements()) {
+		for (EnumElement elem : getElements(sc)) {
 			if (elem.selected) {
 				// this is the selection expected
 				if (elem.name.equals(item))
@@ -195,12 +226,12 @@ public class Enumeration extends AbstractAttribute {
 		return foundSelection;
 	}
 
-	public FuzzyBoolEnum equalsTo(String[] itemArray) {
+	public FuzzyBoolEnum equalsTo(SessionContents sc, String[] itemArray) {
 		if (!assigned)
 			return FuzzyBoolEnum.UNDEFINED;
 		List<String> items = new LinkedList<String>(Arrays.asList(itemArray));
 		// we search all selected elements in items and remove found items
-		elementsLoop: for (EnumElement elem : getElements()) {
+		elementsLoop: for (EnumElement elem : getElements(sc)) {
 			if (elem.selected) {
 				for (Iterator<String> iter = items.iterator(); iter.hasNext();) {
 					String item = iter.next();
@@ -220,11 +251,11 @@ public class Enumeration extends AbstractAttribute {
 			return FuzzyBoolEnum.FALSE;
 	}
 
-	public FuzzyBoolEnum equalsTo(Object obj) {
+	public FuzzyBoolEnum equalsTo(SessionContents sc, Object obj) {
 		if (obj instanceof String)
-			return equalsTo((String) obj);
+			return equalsTo(sc, (String) obj);
 		if (obj instanceof String[])
-			return equalsTo((String[]) obj);
+			return equalsTo(sc, (String[]) obj);
 		return FuzzyBoolEnum.FALSE;
 	}
 
@@ -235,8 +266,8 @@ public class Enumeration extends AbstractAttribute {
 	 * @param item
 	 * @return Returns true if the two operands are equal
 	 */
-	public IConsequence.Result assignEqual(String item, int sequence) {
-		return assignEqual(new String[] { item }, sequence);
+	public IConsequence.Result assignEqual(SessionContents sc, String item, int sequence) {
+		return assignEqual(sc, new String[] { item }, sequence);
 	}
 
 	/**
@@ -246,9 +277,9 @@ public class Enumeration extends AbstractAttribute {
 	 * @param item
 	 * @return Returns true if the two operands are equal
 	 */
-	public IConsequence.Result assignEqual(String[] items, int sequence) {
+	public IConsequence.Result assignEqual(SessionContents sc, String[] items, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
-		FuzzyBoolEnum equal = equalsTo(items);
+		FuzzyBoolEnum equal = equalsTo(sc, items);
 		if (equal == FuzzyBoolEnum.TRUE) {
 			return result;
 		}
@@ -257,7 +288,7 @@ public class Enumeration extends AbstractAttribute {
 					+ " is in conflict with actual value");
 			return result;
 		}
-		boolean selectionValid = select(items, sequence);
+		boolean selectionValid = select(sc, items, sequence);
 		if (!selectionValid) {
 			result.setViolation(getName() + " = " + Logger.arrayToString(items)
 					+ " is in conflict with actual value");
@@ -266,7 +297,7 @@ public class Enumeration extends AbstractAttribute {
 		result.addAffectedAttribute(this);
 		if (getSequence() > sequence)
 			setSequence(sequence);
-		for (EnumElement elem : getElements()) {
+		for (EnumElement elem : getElements(sc)) {
 			boolean isSelected = false;
 			for (int i = 0; i < items.length; i++) {
 				if (elem.name.equals(items[i]))
@@ -277,11 +308,11 @@ public class Enumeration extends AbstractAttribute {
 		return result;
 	}
 
-	public IConsequence.Result assignEqual(Object obj, int sequence) {
+	public IConsequence.Result assignEqual(SessionContents sc, Object obj, int sequence) {
 		if (obj instanceof String)
-			return assignEqual((String) obj, sequence);
+			return assignEqual(sc, (String) obj, sequence);
 		if (obj instanceof String[])
-			return assignEqual((String[]) obj, sequence);
+			return assignEqual(sc, (String[]) obj, sequence);
 		throw new RuntimeException("assignEqual(" + obj.getClass().getName() + ") not implemented");
 	}
 
@@ -289,40 +320,51 @@ public class Enumeration extends AbstractAttribute {
 	 * @return selected values of this enumeration as EnumElement[].
 	 */
 	@Override
-	public Object getValue() {
+	public Object getValue(SessionContents sc) {
 		ArrayList<EnumElement> ret = new ArrayList<EnumElement>();
-		for (EnumElement elem : getElements())
+		for (EnumElement elem : getElements(sc))
 			if (elem.selected)
 				ret.add(elem);
 		return (EnumElement[]) ret.toArray(new EnumElement[ret.size()]);
 	}
 
-	@Override
-	public String toString() {
+	public String toString(SessionContents sc) {
 		String ret = getName() + "[";
-		for (EnumElement elem : getElements())
+		for (EnumElement elem : getElements(sc))
 			ret += elem.toFullString() + ", ";
 		return ret + "]";
 	}
 
-	public ArrayList<EnumElement> getElements() {
-		return elements;
+	public List<EnumElement> getElements(SessionContents sc) {
+		EnumerationContents contents = (EnumerationContents) getContents(sc);
+		if (contents==null) {
+			contents = new EnumerationContents();
+			contents.init(elementNames);
+			if (sc!=null) {
+				sc.putContents(getName(), contents);
+			}
+		}
+		return contents.getElements();
+	}
+	
+	public String[] getElementNames() {
+		return elementNames;
 	}
 
-	public void removeExclusions() {
-		for (EnumElement elem : getElements()) {
+	public void removeExclusions(SessionContents sc) {
+		for (EnumElement elem : getElements(sc)) {
 			elem.available = true;
 		}
 	}
 
-	public void removeViolations() {
+	public void removeViolations(SessionContents sc) {
 		super.removeViolations();
-		removeExclusions();
+		removeExclusions(sc);
 	}
 
 	@Override
-	public void clear(SessionContents session) {
-		for (EnumElement elem : getElements()) {
+	public void clear(SessionContents sc) {
+		for (EnumElement elem : getElements(sc)) {
 			elem.available = true;
 			elem.sequence = 0;
 			if (elem.equals(emptyElement)) {
@@ -335,6 +377,11 @@ public class Enumeration extends AbstractAttribute {
 		setSequence(0);
 		removeViolations();
 		assigned = false;
+	}
+
+	@Override
+	public Object[] getAllValues(SessionContents sc) {
+		return (Object[]) getElements(sc).toArray(new Object[getElements(sc).size()]);
 	}
 
 }

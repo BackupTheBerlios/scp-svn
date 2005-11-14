@@ -2,6 +2,7 @@ package de.scp.selector.ruleengine.rules;
 
 import java.util.List;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.rules.consequences.IConsequence;
 
@@ -72,14 +73,13 @@ public abstract class AbstractRule {
 	}
 
 	/**
-	/**
 	 * Evaluates if the the rule has to fire and propagates the resulting
 	 * constraints to the affected attributes.
 	 * 
 	 * @return Returns an <code>AbstractRule.Result</code>
 	 */
-	public AbstractRule.Result execute(int sequence) {
-		return internalExecute(sequence);
+	public AbstractRule.Result execute(SessionContents sc, int sequence) {
+		return internalExecute(sc, sequence);
 	}
 
 	/**
@@ -88,7 +88,7 @@ public abstract class AbstractRule {
 	 * 
 	 * @return Returns an <code>AbstractRule.Result</code>
 	 */
-	protected abstract AbstractRule.Result internalExecute(int sequence);
+	protected abstract AbstractRule.Result internalExecute(SessionContents sc, int sequence);
 
 	/**
 	 * @return Returns a List of all attributes the rule depends on. This

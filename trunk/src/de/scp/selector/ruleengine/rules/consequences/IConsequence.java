@@ -3,6 +3,7 @@ package de.scp.selector.ruleengine.rules.consequences;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 
 
@@ -89,6 +90,6 @@ public interface IConsequence {
 	 * 
 	 * @return
 	 */
-	public Result execute(int sequence);
+	public Result execute(SessionContents sc, int sequence);
 
 }

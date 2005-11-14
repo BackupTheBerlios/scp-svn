@@ -2,6 +2,8 @@ package de.scp.selector.ruleengine.rules.conditions;
 
 import java.util.List;
 
+import de.scp.selector.ruleengine.SessionContents;
+
 
 
 /**
@@ -11,7 +13,7 @@ import java.util.List;
  */
 public interface IFuzzyBoolComponent {
 
-	public FuzzyBoolEnum evaluate();
+	public FuzzyBoolEnum evaluate(SessionContents sc);
 	
 	public List<IFuzzyBoolComponent> getSubComponents();
 	

@@ -1,5 +1,6 @@
 package de.scp.selector.ruleengine.rules.conditions;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 
 public class Equals extends AbstractBinaryOperator {
@@ -19,8 +20,8 @@ public class Equals extends AbstractBinaryOperator {
 	/**
 	 * @see de.scp.selector.ruleengine.rules.conditions.IFuzzyBoolComponent#evaluate()
 	 */
-	public FuzzyBoolEnum evaluate() {
-		return (lhs.equalsTo(rhs));
+	public FuzzyBoolEnum evaluate(SessionContents sc) {
+		return (lhs.equalsTo(sc, rhs));
 	}
 
 	public String toString() {

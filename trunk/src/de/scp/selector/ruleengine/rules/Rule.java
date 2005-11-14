@@ -3,6 +3,7 @@ package de.scp.selector.ruleengine.rules;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.conditions.IFuzzyBoolComponent;
@@ -18,8 +19,8 @@ public class Rule extends AbstractRule {
 		this.condition = condition;
 	}
 
-	public FuzzyBoolEnum condition() {
-		return condition.evaluate();
+	public FuzzyBoolEnum condition(SessionContents sc) {
+		return condition.evaluate(sc);
 	}
 
 	/**
@@ -39,10 +40,10 @@ public class Rule extends AbstractRule {
 		return null;
 	}
 
-	protected AbstractRule.Result internalExecute(int sequence) {
+	protected AbstractRule.Result internalExecute(SessionContents sc, int sequence) {
 		AbstractRule.Result result = null;
-		if (condition.evaluate().equals(FuzzyBoolEnum.TRUE)) {
-			IConsequence.Result consresult = consequence.execute(sequence);
+		if (condition.evaluate(sc).equals(FuzzyBoolEnum.TRUE)) {
+			IConsequence.Result consresult = consequence.execute(sc, sequence);
 			result = new AbstractRule.Result(consresult);
 			result.setHasFired(true);
 			return result;

@@ -1,5 +1,6 @@
 package de.scp.selector.ruleengine.rules.consequences;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.util.Logger;
@@ -17,8 +18,8 @@ public class Exclude implements IConsequence {
 		this.excludes = excludes;
 	}
 
-	public Result execute(int sequence) {
-		return attribute.exclude(excludes, sequence);
+	public Result execute(SessionContents sc, int sequence) {
+		return attribute.exclude(sc, excludes, sequence);
 	}
 
 	@Override

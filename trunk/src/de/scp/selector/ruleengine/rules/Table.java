@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
@@ -21,7 +22,6 @@ import de.scp.selector.util.Logger;
 // TODO implement a special value to ignore the column in this case
 public class Table extends AbstractRule {
 	AbstractAttribute[] columns;
-
 	String[][] values;
 
 	/**
@@ -35,7 +35,7 @@ public class Table extends AbstractRule {
 	}
 
 	@Override
-	protected Result internalExecute(int sequence) {
+	protected Result internalExecute(SessionContents sc, int sequence) {
 		IConsequence.Result conseq = new IConsequence.Result();
 		// identify all columns (attributes) assigned
 		// ignoring columns which have been set by this table
@@ -53,7 +53,7 @@ public class Table extends AbstractRule {
 		for (int i = 0; i < values.length; i++) {
 			boolean matchingRow = true;
 			for (Integer col : assignedIndices) {
-				if (columns[col.intValue()].equalsTo(values[i][col.intValue()]).equals(
+				if (columns[col.intValue()].equalsTo(sc, values[i][col.intValue()]).equals(
 						FuzzyBoolEnum.FALSE)) {
 					matchingRow = false;
 					break;
@@ -78,10 +78,9 @@ public class Table extends AbstractRule {
 						"Table: " + columns[j].getName() + " includes: "
 								+ Logger.arrayToString(applicableVals));
 				if (applicableVals.length == 0) {
-					conseq.setViolation("Invalid value combination "
-							+ getColumnNames());
+					conseq.setViolation("Invalid value combination " + getColumnNames());
 				}
-				IConsequence.Result res = ((Enumeration) columns[j]).include(applicableVals,
+				IConsequence.Result res = ((Enumeration) columns[j]).include(sc, applicableVals,
 						sequence);
 				conseq.merge(res);
 			}
@@ -89,7 +88,7 @@ public class Table extends AbstractRule {
 		// for identified arbits set value
 		AbstractRule.Result result = new AbstractRule.Result(conseq);
 		// if only one row or none matches we have a result
-		result.setHasFired(noOfMatchingRows<2);
+		result.setHasFired(noOfMatchingRows < 2);
 		return result;
 	}
 

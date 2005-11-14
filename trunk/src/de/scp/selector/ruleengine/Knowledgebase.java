@@ -1,8 +1,9 @@
 package de.scp.selector.ruleengine;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,16 +21,14 @@ import de.scp.selector.util.Logger;
  * @author Axel Sammet
  */
 public class Knowledgebase {
-	private Map<String, AbstractAttribute> allAttributesMap = new HashMap<String, AbstractAttribute>();
-	private List<AbstractAttribute> allAttributes = new ArrayList<AbstractAttribute>();
+	private Map<String, AbstractAttribute> allAttributesMap = new LinkedHashMap<String, AbstractAttribute>();
 	private List<AbstractRule> allRules = new ArrayList<AbstractRule>();
 
 	public void createAttribute(AbstractAttribute attr) {
 		Logger.getInstance().info("Adding attribute: " + attr);
 		if (allAttributesMap.containsKey(attr.getName()))
-			throw new RuntimeException("created duplicate attribute");
+			throw new RuntimeException("Created duplicate attribute");
 		allAttributesMap.put(attr.getName(), attr);
-		allAttributes.add(attr);
 	}
 
 	public void createRule(AbstractRule rule) {
@@ -41,24 +40,24 @@ public class Knowledgebase {
 		return allAttributesMap.get(name);
 	}
 
-	void setAttribute(SessionContents session, String name, String value) {
+	void setAttribute(SessionContents sc, String name, String value) {
 		Logger.getInstance().info("Setting attribute " + name + " = " + value);
 		AbstractAttribute attr = getAttribute(name);
 		// for everey NEW input we generate a higher number
 		// rules from lower sequences dominate later inputs
 		int inputSequence = attr.getSequence();
 		if (inputSequence == 0) {
-			inputSequence = session.getNextSequenceId();
+			inputSequence = sc.getNextSequenceId();
 		}
-		attr.select(value, 1);
+		attr.select(sc, value, 1);
 		// TODO rule conflicts do not result in errors at the moment, if they
 		// occur during one selection
 		// (they overwrite each other instead)
-		fireRules(session, attr, inputSequence);
+		fireRules(sc, attr, inputSequence);
 		attr.setSequence(inputSequence);
 	}
 
-	private void fireRules(SessionContents session, AbstractAttribute attr, int sequenceId) {
+	private void fireRules(SessionContents sc, AbstractAttribute attr, int sequenceId) {
 		int noOfRulesChecked = 0;
 		int noOfRulesFired = 0;
 		long time0 = System.currentTimeMillis();
@@ -70,7 +69,7 @@ public class Knowledgebase {
 			Iterator<AbstractRule> it = rules.iterator();
 			while (it.hasNext()) {
 				AbstractRule rule = it.next();
-				AbstractRule.Result result = rule.execute(sequenceId);
+				AbstractRule.Result result = rule.execute(sc, sequenceId);
 				noOfRulesChecked++;
 				if (result.violationOccured()) {
 					Logger.getInstance().debug("Violation occured: " + result.getViolation());
@@ -105,15 +104,15 @@ public class Knowledgebase {
 	/**
 	 * @return Returns the allAttributes.
 	 */
-	public List<AbstractAttribute> getAllAttributes() {
-		return allAttributes;
+	public Collection<AbstractAttribute> getAllAttributes() {
+		return allAttributesMap.values();
 	}
 
 	/**
 	 * Deletes the contents for all attributes.
 	 */
 	void clear(SessionContents session) {
-		for (AbstractAttribute attrib : allAttributes) {
+		for (AbstractAttribute attrib : allAttributesMap.values()) {
 			attrib.clear(session);
 		}
 	}

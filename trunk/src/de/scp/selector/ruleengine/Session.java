@@ -1,33 +1,57 @@
 package de.scp.selector.ruleengine;
 
-import java.util.List;
+import java.util.Collection;
 
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 
+/**
+ * Session is one of the interface classes of SCP. Session provides methods to
+ * set and get attributes and values. Session stores the SessionContents, which
+ * is not part of the public interface.
+ * 
+ * @author Axel Sammet
+ */
 public class Session {
 	private SessionContents contents;
 	private Knowledgebase knowledgebase;
-	
+
 	public Session(Knowledgebase kb) {
 		contents = new SessionContents();
 		knowledgebase = kb;
 	}
-	
+
 	/**
 	 * This method is only to be used by the Knowledbase.
+	 * 
 	 * @return
 	 */
 	SessionContents getContents() {
 		return contents;
 	}
-	
+
 	/**
 	 * Sets an attribute to the given value.
+	 * 
 	 * @param name
 	 * @param value
 	 */
 	public void setAttribute(String name, String value) {
 		knowledgebase.setAttribute(getContents(), name, value);
+	}
+
+	/**
+	 * Returns the value(s) of an attribute.
+	 * 
+	 * @param name
+	 * @return Returns a String for TextAttributes or an array of EnumElements for
+	 *         Enumerations
+	 */
+	public Object getSelectedValues(String name) {
+		return knowledgebase.getAttribute(name).getValue(contents);
+	}
+	
+	public Object[] getAllValues(String name) {
+		return knowledgebase.getAttribute(name).getAllValues(contents);
 	}
 
 	/**
@@ -42,7 +66,7 @@ public class Session {
 	/**
 	 * @return
 	 */
-	public List<AbstractAttribute> getAllAttributes() {
+	public Collection<AbstractAttribute> getAllAttributes() {
 		return knowledgebase.getAllAttributes();
 	}
 
@@ -52,6 +76,5 @@ public class Session {
 	public int getNextSequenceId() {
 		return contents.getNextSequenceId();
 	}
-
 
 }

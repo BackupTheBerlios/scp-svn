@@ -1,5 +1,6 @@
 package de.scp.selector.ruleengine.rules.consequences;
 
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.util.Logger;
@@ -22,8 +23,8 @@ public class AssignEquals implements IConsequence {
 	/**
 	 * @see de.scp.selector.ruleengine.rules.consequences.IConsequence#execute()
 	 */
-	public IConsequence.Result execute(int sequence) {
-		return attribute.assignEqual(value, sequence);
+	public IConsequence.Result execute(SessionContents sc, int sequence) {
+		return attribute.assignEqual(sc, value, sequence);
 	}
 
 	@Override

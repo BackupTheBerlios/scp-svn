@@ -3,6 +3,8 @@ package de.scp.selector.ruleengine.rules.conditions;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.scp.selector.ruleengine.SessionContents;
+
 public class Not implements IFuzzyBoolComponent {
 	IFuzzyBoolComponent comp;
 
@@ -13,8 +15,8 @@ public class Not implements IFuzzyBoolComponent {
 	/**
 	 * @see de.scp.selector.ruleengine.rules.conditions.IFuzzyBoolComponent#evaluate()
 	 */
-	public FuzzyBoolEnum evaluate() {
-		FuzzyBoolEnum res = comp.evaluate();
+	public FuzzyBoolEnum evaluate(SessionContents sc) {
+		FuzzyBoolEnum res = comp.evaluate(sc);
 		if (res.equals(FuzzyBoolEnum.FALSE))
 			return FuzzyBoolEnum.TRUE;
 		if (res.equals(FuzzyBoolEnum.TRUE))
