@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -52,8 +51,7 @@ public class EnumComboField extends JComboBox {
 	}
 
 	/**
-	 * 
-	 *
+	 * Updates the gui element with the values from the ruleengine.
 	 */
 	public void update() {
 		// the important thing is not to send Events while updating, as this

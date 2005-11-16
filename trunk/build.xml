@@ -11,14 +11,21 @@
     <description>
             description
     </description>
-	
 	<property name="JAVA_HOME" value="c:\Programme\java\jdk1.5.0_03"/>
 
     <!-- ================================= 
           target: default              
          ================================= -->
-    <target name="default" depends="serverapi,tests,server,clientapi">
+    <target name="default" depends="clean,serverapi,tests,server,clientapi">
     </target>
+
+	<target name="clean">
+		<delete>
+			<fileset dir="bin">
+			    <include name="**/*.class"/>
+			</fileset>
+		</delete>
+	</target>
 
 	<!-- API for the ruleengine -->
     <target name="serverapi">
@@ -37,12 +44,5 @@
 	<target name="clientapi">
 	</target>
 
-	<target name="clean">
-		<delete>
-			<fileset dir="bin">
-			    <include name="**/*.*"/>
-			</fileset>
-		</delete>
-	</target>
 </project>
 

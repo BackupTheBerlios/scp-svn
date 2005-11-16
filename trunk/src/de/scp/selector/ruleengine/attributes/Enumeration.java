@@ -160,7 +160,19 @@ public class Enumeration extends AbstractAttribute {
 	 * @param applicableVals
 	 * @param sequence
 	 */
-	public IConsequence.Result include(SessionContents sc,
+	public IConsequence.Result include(SessionContents sc, String[] applicableVals, int sequence) {
+		// identify all not applicable values and then call exclude on them
+		IConsequence.Result result = new IConsequence.Result();
+		elements: for (EnumElement element : getElements(sc)) {
+			for (String elementToInclude : applicableVals) {
+				if (element.name.equals(elementToInclude))
+					continue elements;
+			}
+			result.merge(exclude(sc, element.name, sequence));
+		}
+		return result;
+	}
+/*	public IConsequence.Result include(SessionContents sc,
 			String[] applicableVals, int sequence) {
 		// TODO A better implementation might be to identify all not
 		// applicable values and then call exclude on them (and map violation
@@ -199,8 +211,7 @@ public class Enumeration extends AbstractAttribute {
 			if (!isIncluded) {
 				if (elem.sequence != 0 && getSequence() < sequence
 						&& elem.selected) {
-					result
-							.setViolation("Inclusion does not contain selected value "
+					result.setViolation("Inclusion does not contain selected value "
 									+ elem.name + " for attribute " + getName());
 				}
 				// deselect the value if it is already selected
@@ -217,7 +228,7 @@ public class Enumeration extends AbstractAttribute {
 		setSequence(sequence);
 		return result;
 	}
-
+*/
 	/**
 	 * Excludes an array of values. 
 	 * @param sc
@@ -438,7 +449,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	public void removeViolations(SessionContents sc) {
-		super.removeViolations();
+		super.removeViolations(sc);
 		removeExclusions(sc);
 	}
 
@@ -454,7 +465,7 @@ public class Enumeration extends AbstractAttribute {
 			}
 		}
 		setSequence(0);
-		removeViolations();
+		removeViolations(sc);
 		assigned = false;
 	}
 
@@ -463,5 +474,5 @@ public class Enumeration extends AbstractAttribute {
 		return (Object[]) getElements(sc).toArray(
 				new Object[getElements(sc).size()]);
 	}
-
+	
 }

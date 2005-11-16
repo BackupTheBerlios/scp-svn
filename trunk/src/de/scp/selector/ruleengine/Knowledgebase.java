@@ -62,7 +62,7 @@ public class Knowledgebase {
 		int noOfRulesFired = 0;
 		long time0 = System.currentTimeMillis();
 		boolean notFinished;
-		clearViolations();
+		clearViolations(sc);
 		List<AbstractRule> rules = new ArrayList<AbstractRule>(allRules);
 		do {
 			notFinished = false;
@@ -95,9 +95,9 @@ public class Knowledgebase {
 	/**
 	 * Clears violations for all attributes.
 	 */
-	private void clearViolations() {
+	private void clearViolations(SessionContents sc) {
 		for (AbstractAttribute att : getAllAttributes()) {
-			att.removeViolations();
+			att.removeViolations(sc);
 		}
 	}
 

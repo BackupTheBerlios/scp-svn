@@ -41,7 +41,7 @@ public abstract class AbstractAttribute {
 		return (String[]) violations.toArray(new String[violations.size()]);
 	}
 
-	public void removeViolations() {
+	public void removeViolations(SessionContents sc) {
 		violations.clear();
 	}
 

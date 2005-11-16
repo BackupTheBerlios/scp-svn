@@ -21,7 +21,8 @@ import de.scp.selector.util.Logger;
  */
 // TODO implement a special value to ignore the column in this case
 public class Table extends AbstractRule {
-	AbstractAttribute[] columns;
+	AbstractAttribute[] columnAttr;
+
 	String[][] values;
 
 	/**
@@ -30,7 +31,7 @@ public class Table extends AbstractRule {
 	 *            Read index like [row][column].
 	 */
 	public Table(AbstractAttribute[] columns, String[][] values) {
-		this.columns = columns;
+		this.columnAttr = columns;
 		this.values = values;
 	}
 
@@ -40,12 +41,15 @@ public class Table extends AbstractRule {
 		// identify all columns (attributes) assigned
 		// ignoring columns which have been set by this table
 		int noOfMatchingRows = 0;
-		Set<String>[] valueRanges = new Set[columns.length];
+		Set<String>[] valueRanges = new Set[columnAttr.length];
 		List<Integer> assignedIndices = new LinkedList<Integer>();
-		for (int i = 0; i < columns.length; i++) {
-			AbstractAttribute attr = columns[i];
+		List<Integer> unassignedIndices = new LinkedList<Integer>();
+		for (int i = 0; i < columnAttr.length; i++) {
+			AbstractAttribute attr = columnAttr[i];
 			if (attr.isAssigned() && attr.getSequence() < sequence) {
 				assignedIndices.add(new Integer(i));
+			} else {
+				unassignedIndices.add(new Integer(i));
 			}
 			valueRanges[i] = new HashSet<String>();
 		}
@@ -53,8 +57,8 @@ public class Table extends AbstractRule {
 		for (int i = 0; i < values.length; i++) {
 			boolean matchingRow = true;
 			for (Integer col : assignedIndices) {
-				if (columns[col.intValue()].equalsTo(sc, values[i][col.intValue()]).equals(
-						FuzzyBoolEnum.FALSE)) {
+				if (columnAttr[col.intValue()].equalsTo(sc,
+						values[i][col.intValue()]).equals(FuzzyBoolEnum.FALSE)) {
 					matchingRow = false;
 					break;
 				}
@@ -66,26 +70,34 @@ public class Table extends AbstractRule {
 				}
 			}
 		}
-		// for Enumerations include values
-		for (int j = 0; j < values[0].length; j++) {
-			// ignore the currently set attribute
-			if (columns[j].getSequence() == 1)
-				continue;
-			String[] applicableVals = (String[]) valueRanges[j].toArray(new String[valueRanges[j]
-					.size()]);
-			if (columns[j] instanceof Enumeration) {
-				Logger.getInstance().debug(
-						"Table: " + columns[j].getName() + " includes: "
-								+ Logger.arrayToString(applicableVals));
-				if (applicableVals.length == 0) {
-					conseq.setViolation("Invalid value combination " + getColumnNames());
+		if (noOfMatchingRows == 0) {
+			conseq
+					.setViolation("Invalid value combination "
+							+ getColumnNames());
+		} else {
+			// for Enumerations include values
+			for (Integer col : unassignedIndices) {
+				// ignore the currently set attribute
+				if (columnAttr[col.intValue()].getSequence() == 1)
+					continue;
+				String[] applicableVals = (String[]) valueRanges[col.intValue()]
+						.toArray(new String[valueRanges[col.intValue()].size()]);
+				if (columnAttr[col.intValue()] instanceof Enumeration) {
+					Logger.getInstance().debug(
+							"Table: " + columnAttr[col.intValue()].getName()
+									+ " includes: "
+									+ Logger.arrayToString(applicableVals));
+					if (applicableVals.length == 0) {
+						conseq.setViolation("Invalid value combination "
+								+ getColumnNames());
+					}
+					IConsequence.Result res = ((Enumeration) columnAttr[col
+							.intValue()]).include(sc, applicableVals, sequence);
+					conseq.merge(res);
 				}
-				IConsequence.Result res = ((Enumeration) columns[j]).include(sc, applicableVals,
-						sequence);
-				conseq.merge(res);
+				// TODO else { // for identified arbits set value
 			}
 		}
-		// for identified arbits set value
 		AbstractRule.Result result = new AbstractRule.Result(conseq);
 		// if only one row or none matches we have a result
 		result.setHasFired(noOfMatchingRows < 2);
@@ -100,7 +112,8 @@ public class Table extends AbstractRule {
 
 	@Override
 	public String toString() {
-		StringBuffer ret = new StringBuffer("Table: ").append(getColumnNames()).append(": {");
+		StringBuffer ret = new StringBuffer("Table: ").append(getColumnNames())
+				.append(": {");
 		for (int row = 0; row < values.length; row++) {
 			if (row != 0) {
 				ret.append(", ");
@@ -123,11 +136,11 @@ public class Table extends AbstractRule {
 	 */
 	private String getColumnNames() {
 		StringBuffer ret = new StringBuffer("{");
-		for (int col = 0; col < columns.length; col++) {
+		for (int col = 0; col < columnAttr.length; col++) {
 			if (col != 0) {
 				ret.append(", ");
 			}
-			ret.append(columns[col].getName());
+			ret.append(columnAttr[col].getName());
 		}
 		ret.append("}");
 		return ret.toString();
