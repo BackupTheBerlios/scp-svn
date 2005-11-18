@@ -46,13 +46,14 @@ public class Session {
 	 * @return Returns a String for TextAttributes or an array of EnumElements for
 	 *         Enumerations
 	 */
-	public Object getSelectedValues(String name) {
-		return knowledgebase.getAttribute(name).getValue(contents);
-	}
-	
-	public Object[] getAllValues(String name) {
+	public Object[] getValueContents(String name) {
 		return knowledgebase.getAttribute(name).getAllValues(contents);
 	}
+
+	public String[] getSelectedValues(String name) {
+		return knowledgebase.getAttribute(name).getSelectedValuesAsStrings(contents);
+	}
+	
 
 	/**
 	 * Clears the session. All informations about selections or status of

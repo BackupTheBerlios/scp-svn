@@ -45,16 +45,17 @@ public class Knowledgebase {
 		AbstractAttribute attr = getAttribute(name);
 		// for everey NEW input we generate a higher number
 		// rules from lower sequences dominate later inputs
-		int inputSequence = attr.getSequence();
-		if (inputSequence == 0) {
-			inputSequence = sc.getNextSequenceId();
+		int attrSequence = attr.getSequence();
+		int currentInputSequence = sc.getNextSequenceId();
+		if (attrSequence > currentInputSequence) {
+			attrSequence = currentInputSequence;
 		}
 		attr.select(sc, value, 1);
 		// TODO rule conflicts do not result in errors at the moment, if they
 		// occur during one selection
 		// (they overwrite each other instead)
-		fireRules(sc, attr, inputSequence);
-		attr.setSequence(inputSequence);
+		fireRules(sc, attr, attrSequence);
+		attr.setSequence(attrSequence);
 	}
 
 	private void fireRules(SessionContents sc, AbstractAttribute attr, int sequenceId) {

@@ -55,6 +55,8 @@ public abstract class AbstractAttribute {
 	 * @return
 	 */
 	public abstract Object getValue(SessionContents sc);
+	
+	public abstract String[] getSelectedValuesAsStrings(SessionContents sc);
 
 	public abstract FuzzyBoolEnum equalsTo(SessionContents sc, Object str);
 

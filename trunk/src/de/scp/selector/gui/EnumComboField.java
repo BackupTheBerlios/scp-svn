@@ -21,7 +21,7 @@ public class EnumComboField extends JComboBox {
 		this.linkedAttr = enumeration;
 		this.session = session;
 		label = new JLabel(linkedAttr.getName());
-		for (Object element : session.getAllValues(linkedAttr.getName())) {
+		for (Object element : session.getValueContents(linkedAttr.getName())) {
 			addItem(element);
 		}
 		setRenderer(new BasicComboBoxRenderer() {
@@ -62,7 +62,7 @@ public class EnumComboField extends JComboBox {
 			removeActionListener(listeners[i]);
 		}
 		Object[] values = (Object[]) session
-				.getAllValues(linkedAttr.getName());
+				.getValueContents(linkedAttr.getName());
 		if (values != null && values.length != 0) {
 			removeAllItems();
 			for (int i = 0; i < values.length; i++) {
