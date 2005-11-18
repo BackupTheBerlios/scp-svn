@@ -212,7 +212,7 @@ public class Enumeration extends AbstractAttribute {
 			if (elem.name.equals(EMPTY_VALNAME))
 				continue;
 			if (item.equals(elem.name)) {
-				if (getSequence() != 0 && getSequence() < sequence && elem.selected) {
+				if (getSequence() < sequence && elem.selected) {
 					result.setViolation("Exclude '" + item + "' from attribute " + getName()
 							+ " conflicts with actual value.");
 					return result;
@@ -313,7 +313,7 @@ public class Enumeration extends AbstractAttribute {
 		if (equal == FuzzyBoolEnum.TRUE) {
 			return result;
 		}
-		else if (getSequence() != 0 && getSequence() < sequence && equal == FuzzyBoolEnum.FALSE) {
+		else if (getSequence() < sequence && equal == FuzzyBoolEnum.FALSE) {
 			result.setViolation(getName() + " = " + Logger.arrayToString(items)
 					+ " is in conflict with actual value");
 			return result;
@@ -400,7 +400,7 @@ public class Enumeration extends AbstractAttribute {
 	public void clear(SessionContents sc) {
 		for (EnumElement elem : getElements(sc)) {
 			elem.available = true;
-			elem.sequence = 0;
+			elem.sequence = Integer.MAX_VALUE;
 			if (elem.name.equals(EMPTY_VALNAME)) {
 				elem.selected = true;
 			}
@@ -408,7 +408,7 @@ public class Enumeration extends AbstractAttribute {
 				elem.selected = false;
 			}
 		}
-		setSequence(0);
+		setSequence(Integer.MAX_VALUE);
 		removeViolations(sc);
 		assigned = false;
 	}

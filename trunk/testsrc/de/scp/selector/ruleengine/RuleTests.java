@@ -2,13 +2,16 @@ package de.scp.selector.ruleengine;
 
 import de.scp.selector.ruleengine.Knowledgebase;
 import de.scp.selector.ruleengine.SessionContents;
+import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.ruleengine.rules.Rule;
+import de.scp.selector.ruleengine.rules.Table;
 import de.scp.selector.ruleengine.rules.conditions.And;
 import de.scp.selector.ruleengine.rules.conditions.Equals;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.conditions.IFuzzyBoolComponent;
 import de.scp.selector.ruleengine.rules.consequences.AssignEquals;
+import de.scp.selector.ruleengine.rules.consequences.Exclude;
 import junit.framework.TestCase;
 
 /**
@@ -52,6 +55,33 @@ public class RuleTests extends TestCase {
 				new AssignEquals(numbers3, "3"));
 		assertTrue("Execution should return true", rule.execute(sc, 1).hasFired());
 		assertTrue("Value 3 hould be assigned", numbers3.equalsTo(sc, "3") == FuzzyBoolEnum.TRUE);
+	}
+
+	public void testClear() {
+		Knowledgebase kb = new Knowledgebase();
+		kb.createAttribute(new Enumeration("Car",
+				new String[] { "Sportscar", "Van", "Compact car" }));
+		kb.createAttribute(new Enumeration("Engine power", new String[] { "55 hp", "65 hp",
+				"90 hp", "115 hp", "220 hp" }));
+		kb.createAttribute(new Enumeration("Color", new String[] { "red", "black", "blue", "grey",
+				"green" }));
+		kb.createAttribute(new Enumeration("Navigation", new String[] { "yes", "no" }));
+		kb.createAttribute(new Enumeration("Radio", new String[] { "no", "simple", "comfort" }));
+
+		kb.createRule(new Table(new AbstractAttribute[] { kb.getAttribute("Car"),
+				kb.getAttribute("Engine power"), kb.getAttribute("Color") }, new String[][] {
+				{ "Sportscar", "220 hp", "red" }, { "Sportscar", "220 hp", "black" },
+				{ "Van", "65 hp", "black" }, { "Van", "90 hp", "blue" },
+				{ "Van", "115 hp", "grey" }, { "Compact car", "65 hp", "grey" },
+				{ "Compact car", "65 hp", "grey" }, { "Compact car", "55 hp", "grey" },
+				{ "Compact car", "55 hp", "green" } }));
+		Session session = new Session(kb);
+		session.setAttribute("Car", "Sportscar");
+		session.setAttribute("Color", "blue");
+		session.clear();
+		session.setAttribute("Car", "Sportscar");
+		assertEquals("Error after session clearing.", "220 hp", session
+				.getSelectedValues("Engine power")[0]);
 	}
 
 	public void testPerformance() {
