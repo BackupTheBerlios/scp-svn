@@ -44,8 +44,7 @@ public class Enumeration extends AbstractAttribute {
 			if (!(obj instanceof EnumElement))
 				return false;
 			EnumElement el = (EnumElement) obj;
-			return (el.available == available && el.selected == selected && el.name
-					.equals(name));
+			return (el.available == available && el.selected == selected && el.name.equals(name));
 		}
 
 		public PublicCloneable clone() {
@@ -84,7 +83,7 @@ public class Enumeration extends AbstractAttribute {
 		public PublicCloneable clone() {
 			EnumerationContents ret = new EnumerationContents();
 			Iterator<EnumElement> iter = elements.iterator();
-			while ( iter.hasNext()) {
+			while (iter.hasNext()) {
 				EnumElement element = iter.next();
 				ret.elements.add(element);
 			}
@@ -92,8 +91,7 @@ public class Enumeration extends AbstractAttribute {
 		}
 	}
 
-	private static Enumeration.EnumElement emptyElement = new Enumeration.EnumElement(
-			"-");
+	private static Enumeration.EnumElement emptyElement = new Enumeration.EnumElement("-");
 
 	String[] elementNames;
 
@@ -109,7 +107,7 @@ public class Enumeration extends AbstractAttribute {
 	 * @param itemName
 	 */
 	// TODO check visibility
-	public boolean select(SessionContents sc, String itemName, int sequence) {
+	public IConsequence.Result select(SessionContents sc, String itemName, int sequence) {
 		return select(sc, new String[] { itemName }, sequence);
 	}
 
@@ -119,39 +117,60 @@ public class Enumeration extends AbstractAttribute {
 	 * 
 	 * @param items
 	 */
-	// TODO buggy when selecting an assigned attribute
-	public boolean select(SessionContents sc, String[] items, int sequence) {
+	public IConsequence.Result select(SessionContents sc, String[] items, int sequence) {
+		IConsequence.Result result = new IConsequence.Result();
 		if (items == null)
-			return false;
+			return result;
+		result.addAffectedAttribute(this);
 		// deslect attribute
-		if (items.length==1 && emptyElement.name.equals(items[0])) {
+		if (items.length == 1 && emptyElement.name.equals(items[0])) {
 			clear(sc);
-			return true;
+			return result;
 		}
 		// identify selected elements and set them
-		itemloop: for (int i = 0; i < items.length; i++) {
-			for (EnumElement elem : getElements(sc)) {
+		List<String> itemList = new LinkedList<String>(Arrays.asList(items));
+		elementloop: for (EnumElement elem : getElements(sc)) {
+			Iterator<String> iter = itemList.iterator();
+			while (iter.hasNext()) {
+				String item = iter.next();
 				boolean wasSelected = elem.selected;
 				elem.selected = false;
-				if (items[i].equals(elem.name)) {
+				if (item.equals(elem.name)) {
 					// TODO a violation would be better
-					if (getSequence() != 0
-							&& getSequence() < sequence
+					if (getSequence() != 0 && getSequence() < sequence
 							&& (!elem.available || (!wasSelected && assigned))) {
-						return false;
+						result.setViolation("Cannot set Attribute " + getName() + " to " + item
+								+ " due to previous assignement.");
+						return result;
 					}
 					elem.selected = true;
 					assigned = true;
 					setSequence(sequence);
-					continue itemloop;
+					iter.remove();
+					continue elementloop;
 				}
 			}
-			throw new RuntimeException("element " + items[i]
-					+ " not in enumeration " + toString());
 		}
-		return true;
+		if (itemList.size() > 0)
+			throw new RuntimeException("element " + itemList + " not in enumeration " + toString());
+		return result;
 	}
 
+	// TODO buggy when selecting an assigned attribute
+	/*
+	 * public boolean select(SessionContents sc, String[] items, int sequence) {
+	 * if (items == null) return false; // deslect attribute if (items.length==1 &&
+	 * emptyElement.name.equals(items[0])) { clear(sc); return true; } //
+	 * identify selected elements and set them itemloop: for (int i = 0; i <
+	 * items.length; i++) { for (EnumElement elem : getElements(sc)) { boolean
+	 * wasSelected = elem.selected; elem.selected = false; if
+	 * (items[i].equals(elem.name)) { // TODO a violation would be better if
+	 * (getSequence() != 0 && getSequence() < sequence && (!elem.available ||
+	 * (!wasSelected && assigned))) { return false; } elem.selected = true;
+	 * assigned = true; setSequence(sequence); continue itemloop; } } throw new
+	 * RuntimeException("element " + items[i] + " not in enumeration " +
+	 * toString()); } return true; }
+	 */
 
 	/**
 	 * Excludes all parameter, which are not given in the parameter
@@ -172,72 +191,43 @@ public class Enumeration extends AbstractAttribute {
 		}
 		return result;
 	}
-/*	public IConsequence.Result include(SessionContents sc,
-			String[] applicableVals, int sequence) {
-		// TODO A better implementation might be to identify all not
-		// applicable values and then call exclude on them (and map violation
-		// texts)
-		IConsequence.Result result = new IConsequence.Result();
-		int noOfIncludedElements = 0;
-		EnumElement lastIncluded = null;
-		for (EnumElement elem : getElements(sc)) {
-			if (elem.equals(emptyElement)) {
-				continue;
-			}
-			boolean isIncluded = false;
-			for (int i = 0; i < applicableVals.length; i++) {
-				if (elem.name.equals(applicableVals[i])) {
-					if (elem.sequence != 0 && getSequence() < sequence
-							&& !elem.available) {
-						result.setViolation("Inclusion of excluded value "
-								+ elem.name + " for attribute " + getName());
-					}
-					isIncluded = true;
-					noOfIncludedElements++;
-					lastIncluded = elem;
-					if (elem.available == false) {
-						elem.available = true;
-						elem.sequence = sequence;
-					}
-					break;
-				} else if (elem.sequence != 0 && getSequence() < sequence
-						&& elem.selected) {
-					result
-							.setViolation("Inclusion does not contain selected value "
-									+ elem.name + " for attribute " + getName());
 
-				}
-			}
-			if (!isIncluded) {
-				if (elem.sequence != 0 && getSequence() < sequence
-						&& elem.selected) {
-					result.setViolation("Inclusion does not contain selected value "
-									+ elem.name + " for attribute " + getName());
-				}
-				// deselect the value if it is already selected
-				elem.available = false;
-				if (elem.selected) {
-					select(sc, "-", 0);
-				}
-				elem.sequence = sequence;
-			}
-		}
-		if (noOfIncludedElements == 1) {
-			select(sc, lastIncluded.name, sequence);
-		}
-		setSequence(sequence);
-		return result;
-	}
-*/
+	/*
+	 * public IConsequence.Result include(SessionContents sc, String[]
+	 * applicableVals, int sequence) { // TODO A better implementation might be
+	 * to identify all not // applicable values and then call exclude on them
+	 * (and map violation // texts) IConsequence.Result result = new
+	 * IConsequence.Result(); boolean removedSelection = false; int
+	 * noOfIncludedElements = 0; EnumElement lastIncluded = null; for
+	 * (EnumElement elem : getElements(sc)) { if (elem.equals(emptyElement)) {
+	 * continue; } boolean isIncluded = false; for (int i = 0; i <
+	 * applicableVals.length; i++) { if (elem.name.equals(applicableVals[i])) {
+	 * if (elem.sequence != 0 && getSequence() < sequence && !elem.available) {
+	 * result.setViolation("Inclusion of excluded value " + elem.name + " for
+	 * attribute " + getName()); } isIncluded = true; noOfIncludedElements++;
+	 * lastIncluded = elem; if (elem.available == false) { elem.available =
+	 * true; elem.sequence = sequence; } break; } else if (elem.sequence != 0 &&
+	 * getSequence() < sequence && elem.selected) { result
+	 * .setViolation("Inclusion does not contain selected value " + elem.name + "
+	 * for attribute " + getName()); } } if (!isIncluded) { if (elem.sequence !=
+	 * 0 && getSequence() < sequence && elem.selected) {
+	 * result.setViolation("Inclusion does not contain selected value " +
+	 * elem.name + " for attribute " + getName()); } // deselect the value if it
+	 * is already selected elem.available = false; if (elem.selected) {
+	 * elem.selected = false; removedSelection = true; } elem.sequence =
+	 * sequence; } } if (noOfIncludedElements == 1) { select(sc,
+	 * lastIncluded.name, sequence); } else if (removedSelection) { // deselect
+	 * select(sc,"-",0); } setSequence(sequence); return result; }
+	 */
 	/**
-	 * Excludes an array of values. 
+	 * Excludes an array of values.
+	 * 
 	 * @param sc
 	 * @param items
 	 * @param sequence
 	 * @return
 	 */
-	public IConsequence.Result exclude(SessionContents sc, String[] items,
-			int sequence) {
+	public IConsequence.Result exclude(SessionContents sc, String[] items, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
 		for (int i = 0; i < items.length; i++) {
 			IConsequence.Result singleRes = exclude(sc, items[i], sequence);
@@ -256,8 +246,7 @@ public class Enumeration extends AbstractAttribute {
 	 *            sequence
 	 * @return
 	 */
-	public IConsequence.Result exclude(SessionContents sc, String item,
-			int sequence) {
+	public IConsequence.Result exclude(SessionContents sc, String item, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
 		EnumElement anAvailableElement = null;
 		int noOfAvailableElements = 0;
@@ -266,10 +255,8 @@ public class Enumeration extends AbstractAttribute {
 			if (elem.equals(emptyElement))
 				continue;
 			if (item.equals(elem.name)) {
-				if (getSequence() != 0 && getSequence() < sequence
-						&& elem.selected) {
-					result.setViolation("Exclude '" + item
-							+ "' from attribute " + getName()
+				if (getSequence() != 0 && getSequence() < sequence && elem.selected) {
+					result.setViolation("Exclude '" + item + "' from attribute " + getName()
 							+ " conflicts with actual value.");
 					return result;
 				}
@@ -286,9 +273,8 @@ public class Enumeration extends AbstractAttribute {
 		}
 		// if only one available elment is left, select it
 		if (noOfAvailableElements == 1) {
-			boolean selectionValid = select(sc, anAvailableElement.name,
-					sequence);
-			if (!selectionValid) {
+			boolean violation = select(sc, anAvailableElement.name, sequence).isViolated();
+			if (violation) {
 				result.setViolation("Exclude " + item + " from " + getName()
 						+ " conflicts with actual value.");
 			}
@@ -353,8 +339,7 @@ public class Enumeration extends AbstractAttribute {
 	 * @param item
 	 * @return Returns true if the two operands are equal
 	 */
-	public IConsequence.Result assignEqual(SessionContents sc, String item,
-			int sequence) {
+	public IConsequence.Result assignEqual(SessionContents sc, String item, int sequence) {
 		return assignEqual(sc, new String[] { item }, sequence);
 	}
 
@@ -365,20 +350,19 @@ public class Enumeration extends AbstractAttribute {
 	 * @param item
 	 * @return Returns true if the two operands are equal
 	 */
-	public IConsequence.Result assignEqual(SessionContents sc, String[] items,
-			int sequence) {
+	public IConsequence.Result assignEqual(SessionContents sc, String[] items, int sequence) {
 		IConsequence.Result result = new IConsequence.Result();
 		FuzzyBoolEnum equal = equalsTo(sc, items);
 		if (equal == FuzzyBoolEnum.TRUE) {
 			return result;
-		} else if (getSequence() != 0 && getSequence() < sequence
-				&& equal == FuzzyBoolEnum.FALSE) {
+		}
+		else if (getSequence() != 0 && getSequence() < sequence && equal == FuzzyBoolEnum.FALSE) {
 			result.setViolation(getName() + " = " + Logger.arrayToString(items)
 					+ " is in conflict with actual value");
 			return result;
 		}
-		boolean selectionValid = select(sc, items, sequence);
-		if (!selectionValid) {
+		boolean violation = select(sc, items, sequence).isViolated();
+		if (violation) {
 			result.setViolation(getName() + " = " + Logger.arrayToString(items)
 					+ " is in conflict with actual value");
 			return result;
@@ -397,14 +381,12 @@ public class Enumeration extends AbstractAttribute {
 		return result;
 	}
 
-	public IConsequence.Result assignEqual(SessionContents sc, Object obj,
-			int sequence) {
+	public IConsequence.Result assignEqual(SessionContents sc, Object obj, int sequence) {
 		if (obj instanceof String)
 			return assignEqual(sc, (String) obj, sequence);
 		if (obj instanceof String[])
 			return assignEqual(sc, (String[]) obj, sequence);
-		throw new RuntimeException("assignEqual(" + obj.getClass().getName()
-				+ ") not implemented");
+		throw new RuntimeException("assignEqual(" + obj.getClass().getName() + ") not implemented");
 	}
 
 	/**
@@ -460,7 +442,8 @@ public class Enumeration extends AbstractAttribute {
 			elem.sequence = 0;
 			if (elem.equals(emptyElement)) {
 				elem.selected = true;
-			} else {
+			}
+			else {
 				elem.selected = false;
 			}
 		}
@@ -471,8 +454,7 @@ public class Enumeration extends AbstractAttribute {
 
 	@Override
 	public Object[] getAllValues(SessionContents sc) {
-		return (Object[]) getElements(sc).toArray(
-				new Object[getElements(sc).size()]);
+		return (Object[]) getElements(sc).toArray(new Object[getElements(sc).size()]);
 	}
-	
+
 }

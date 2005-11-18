@@ -13,10 +13,13 @@ import de.scp.selector.ruleengine.rules.consequences.IConsequence;
  * @author Axel Sammet
  */
 public abstract class AbstractAttribute {
+	// TODO move into contents
 	boolean assigned;
 	private String name;
+	// TODO move violations into contents
 	private List<String> violations = new ArrayList<String>();
-	private int sequence;
+	// TODO move sequence into contents
+	private int sequence = Integer.MAX_VALUE;
 
 	public AbstractAttribute(String name) {
 		this.name = name;
@@ -61,7 +64,7 @@ public abstract class AbstractAttribute {
 		return assigned;
 	}
 
-	public abstract boolean select(SessionContents sc, String value, int sequence);
+	public abstract IConsequence.Result select(SessionContents sc, String value, int sequence);
 
 	/**
 	 * @return Returns the sequence.
@@ -74,7 +77,6 @@ public abstract class AbstractAttribute {
 	 * @param sequence
 	 *            The sequence to set.
 	 */
-	// TODO move sequence into contents
 	public void setSequence(int sequence) {
 		this.sequence = sequence;
 	}
