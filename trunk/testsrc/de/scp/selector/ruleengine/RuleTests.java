@@ -18,34 +18,36 @@ public class RuleTests extends TestCase {
 
 	public void testCondition() {
 		Knowledgebase kb = new Knowledgebase();
+		SessionContents sc = new SessionContents();
 		Enumeration numbers1 = new Enumeration("numbers1", new String[] { "1", "2", "3", "4" });
-		numbers1.select("3", 1);
+		numbers1.select(sc, "3", 1);
 		Enumeration numbers2 = new Enumeration("numbers2", new String[] { "1", "2", "3", "4" });
-		IFuzzyBoolComponent result = new And(new Equals(numbers1, "4"), new Equals(numbers2, "1"));
+		IFuzzyBoolComponent compound = new And(new Equals(numbers1, "4"), new Equals(numbers2, "1"));
 		// false and undefined => false
-		assertTrue("shortcut for 'lhs is false' failed", result.evaluate() == FuzzyBoolEnum.FALSE);
-		result = new And(new Equals(numbers2, "4"), new Equals(numbers1, "1"));
-		assertTrue("shortcut for 'rhs is false' failed", result.evaluate() == FuzzyBoolEnum.FALSE);
-		numbers2.select("4", 1);
-		assertTrue("evaluation 'true and false' failed", result.evaluate() == FuzzyBoolEnum.FALSE);
-		numbers1.select("1", 1);
-		assertTrue("evaluation 'true and true' failed", result.evaluate() == FuzzyBoolEnum.TRUE);
+		assertTrue("shortcut for 'lhs is false' failed", compound.evaluate(sc) == FuzzyBoolEnum.FALSE);
+		compound = new And(new Equals(numbers2, "4"), new Equals(numbers1, "1"));
+		assertTrue("shortcut for 'rhs is false' failed", compound.evaluate(sc) == FuzzyBoolEnum.FALSE);
+		numbers2.select(sc, "4", 1);
+		assertTrue("evaluation 'true and false' failed", compound.evaluate(sc) == FuzzyBoolEnum.FALSE);
+		numbers1.select(sc, "1", 1);
+		assertTrue("evaluation 'true and true' failed", compound.evaluate(sc) == FuzzyBoolEnum.TRUE);
 		numbers2 = new Enumeration("numbers", new String[] { "1", "2", "3", "4" });
-		result = new And(new Equals(numbers2, "4"), new Equals(numbers1, "1"));
+		compound = new And(new Equals(numbers2, "4"), new Equals(numbers1, "1"));
 		assertTrue("evaluation of undefined expression failed",
-				result.evaluate() == FuzzyBoolEnum.UNDEFINED);
+				compound.evaluate(sc) == FuzzyBoolEnum.UNDEFINED);
 	}
 
 	public void testConsequence() {
 		Knowledgebase kb = new Knowledgebase();
+		SessionContents sc = new SessionContents();
 		Enumeration numbers1 = new Enumeration("numbers1", new String[] { "1", "2", "3", "4" });
-		numbers1.select("4", 1);
+		numbers1.select(sc, "4", 1);
 		Enumeration numbers2 = new Enumeration("numbers2", new String[] { "1", "2", "3", "4" });
-		numbers2.select("1", 1);
+		numbers2.select(sc, "1", 1);
 		Enumeration numbers3 = new Enumeration("numbers2", new String[] { "1", "2", "3", "4" });
 		Rule rule = new Rule(new And(new Equals(numbers1, "4"), new Equals(numbers2, "1")),
 				new AssignEquals(numbers3, "3"));
-		assertTrue("Execution should return true", rule.execute(1).hasFired());
+		assertTrue("Execution should return true", rule.execute(sc, 1).hasFired());
 		assertEquals(numbers3, "3");
 	}
 
@@ -59,7 +61,7 @@ public class RuleTests extends TestCase {
 			kb.createRule(new Rule(new Equals(kb.getAttribute("enum"+(i-1)), "a"), new AssignEquals(
 					kb.getAttribute("enum"+(i)), new String[] { "a" })));
 		}
-		SessionContents session = new SessionContents(kb);
+		Session session = new Session(kb);
 		session.setAttribute("enum0","a");
 	}
 
