@@ -30,7 +30,7 @@ public class SessionContents {
 	 * Constructor must have package visibility to allow Session the creation
 	 * and forbid creation outside of this framework.
 	 */
-	SessionContents() {
+	protected SessionContents() {
 	}
 
 	/**

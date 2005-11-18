@@ -8,40 +8,51 @@
      Administrator                                                                
      ====================================================================== -->
 <project name="project" default="default">
-    <description>
+	<description>
             description
     </description>
-	<property name="JAVA_HOME" value="c:\Programme\java\jdk1.5.0_03"/>
+	<property name="JAVA_HOME" value="c:\Programme\java\jdk1.5.0_03" />
 
-    <!-- ================================= 
+	<!-- ================================= 
           target: default              
          ================================= -->
-    <target name="default" depends="clean,serverapi,tests,server,clientapi">
-    </target>
+	<target name="default" depends="clean,serverapi,tests,server,clientapi,javadoc">
+	</target>
 
 	<target name="clean">
 		<delete>
 			<fileset dir="bin">
-			    <include name="**/*.class"/>
+				<include name="**/*.class" />
 			</fileset>
 		</delete>
 	</target>
 
 	<!-- API for the ruleengine -->
-    <target name="serverapi">
- 		<javac srcdir="src" destdir="bin"/>
-    	<jar destfile="deploy/scpapi.jar" basedir="bin"/>
-    </target>
-	
+	<target name="serverapi">
+		<javac srcdir="src" destdir="bin" />
+		<jar destfile="deploy/scpapi.jar" basedir="bin" />
+	</target>
+
 	<target name="tests">
+		<javac srcdir="testsrc" destdir="bin" />
 	</target>
 	
+	<target name="examples">
+		<javac srcdir="examples" destdir="bin" />
+	</target>
+
 	<!-- Servlet dispatcher for a multisession server -->
 	<target name="server">
 	</target>
-	
+
 	<!-- Client API to communicate with servlet -->
 	<target name="clientapi">
+	</target>
+
+	<target name="javadoc">
+		<javadoc destdir="docs/javadoc">
+			<fileset dir="src"/>
+		</javadoc>
 	</target>
 
 </project>
