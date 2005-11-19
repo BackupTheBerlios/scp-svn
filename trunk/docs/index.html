@@ -1,107 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
-<link rel="stylesheet" type="text/css" href="scpstyle.css" />
-<title>SCP Selector with Constraint Propagation</title>
-
+<head>
+  <link rel="stylesheet" type="text/css" href="scpstyle.css">
+  <title>SCP Selector with Constraint Propagation</title>
+</head>
 <body>
-
 <div id="left">
-<img src="spiral.png" width="160" height="120"/>
-
-<div id="Navigation">
-<b>Navigation:</b>
-<p>
-<a href="http://developer.berlios.de/projects/scp">Projekt</a> <br/>
-<a href="http://developer.berlios.de/project/showfiles.php?group_id=4796">Download</a> <br/>
+<img src="spiral.png" height="120" width="160">
+<div id="Navigation"><b>Navigation:</b>
+<p><a href="http://developer.berlios.de/projects/scp">Projekt</a> <br>
+<a
+ href="http://developer.berlios.de/project/showfiles.php?group_id=4796">Download</a>
+<br>
 <a href="javadoc/index.html">Javadoc</a>
 </p>
 </div>
 </div>
-
 <div id="right">
 </div>
-
 <div id="Contents">
-<h1>
-SCP Selector with Constraint Propagation
+<h1>SCP Selector with Constraint Propagation
 </h1>
 <p>
-SCP provides a simple interface to define business rules. In order to acchieve this, attributes and rules will be expressed in a simple syntax, building the so called knowledge base. With the API an application can check its current selections (values) for the predefined attributes against the knowledge base.<br/>
+SCP provides a simple interface to define business rules. In order to
+acchieve this, attributes and rules will be expressed in a simple
+syntax, building the so called knowledge base. With the API an
+application can check its current selections (values) for the
+predefined attributes against the knowledge base.<br>
 SCP will then
-<li> check if any of the rules in the knowledgebase has been violated </li>
-<li> try to narrow the possible values of dependent attributes </li><br/>
-Therebye the user of the application is guided towards a valid solution.
 </p>
-
+<li> check if any of the rules in the knowledgebase has been violated </li>
+<li> try to narrow the possible values of dependent attributes </li>
+<br>
+Therebye the user of the application is guided towards a valid
+solution.
 <h2>Example</h2>
 <p>
-Let us assume, that we want to build an application to sell cars. We have a set of different cars, which can be ordered in different configurations. Using SCP this means, we have to define a new knowledge base first:
+Let us assume, that we want to build an application to sell cars. We
+have a set of different cars, which can be ordered in different
+configurations. Using SCP this means, we have to define a new knowledge
+base first:
 </p>
-<pre class="code">
-Knowledgebase kb = new Knowledgebase();
-</pre>
-Now we want to fill the knowledge base with our business rules. At the moment this can be done in code only. We start by adding some attributes to the knowledge base:
-<pre class="code">
-kb.createAttribute(new Enumeration("Car", new String[] { 
-  "Sportscar", "Van", "Compact car"}));
-kb.createAttribute(new Enumeration("Engine power", new String[] {
-  "55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));
-kb.createAttribute(new Enumeration("Color", new String[] {
-  "red", "black", "blue", "grey", "green"}));
-kb.createAttribute(new Enumeration("Navigation", new String[] {
-  "yes", "no"}));
-kb.createAttribute(new Enumeration("Radio", new String[] {
-  "no", "simple", "comfort"}));
-</pre>
+<pre class="code">Knowledgebase kb = new Knowledgebase();<br></pre>
+Now we want to fill the knowledge base with our business rules. At the
+moment this can be done in code only. We start by adding some
+attributes to the knowledge base:
+<pre class="code">kb.createAttribute(new Enumeration("Car", new String[] { <br>  "Sportscar", "Van", "Compact car"}));<br>kb.createAttribute(new Enumeration("Engine power", new String[] {<br>  "55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));<br>kb.createAttribute(new Enumeration("Color", new String[] {<br>  "Red", "Black", "Blue", "Grey", "Green"}));<br>kb.createAttribute(new Enumeration("Navigation", new String[] {<br>  "yes", "no"}));<br>kb.createAttribute(new Enumeration("Radio", new String[] {<br>  "no", "simple", "comfort"}));<br></pre>
 <p>
-This means we want to configure the type, the power and the color of the car. Furthermore we have some extras (i.e. Navigation and radio).
+This means we want to configure the type, the power and the color of
+the car. Furthermore we have some extras (i.e. Navigation and radio).
 </p>
 <p>
 Now we want to define some rules:
 </p>
-<pre class="code">
-kb.createRule(new Table(new AbstractAttribute[] {
-      kb.getAttribute("Car"), 
-      kb.getAttribute("Engine power"), 
-      kb.getAttribute("Color")
-  },
-  new String[][] { 
-      {"Sportscar", "220 hp", "red"}, 
-      {"Sportscar", "220 hp", "black"}, 
-      {"Van", "65 hp", "black"}, 
-      {"Van", "90 hp", "blue"}, 
-      {"Van", "115 hp", "grey"}, 
-      {"Compact car", "65 hp", "grey"},
-      {"Compact car", "65 hp", "grey"},
-      {"Compact car", "55 hp", "grey"},
-      {"Compact car", "55 hp", "green"}
-}));
-
-kb.createRule(new Rule(
-  new Equals(kb.getAttribute("Navigation"), "yes"),
-  new Exclude(kb.getAttribute("Radio"), new String[] {"no"})
-));
-</pre>
-<p> The first rule is a table describing valid combinations of car type, engine and color. The second statement defines a simple rule saying:
+<pre class="code">kb.createRule(new Table(new AbstractAttribute[] {<br>      kb.getAttribute("Car"), <br>      kb.getAttribute("Engine power"), <br>      kb.getAttribute("Color")<br>  },<br>  new String[][] { <br>      {"Sportscar", "220 hp", "Red"}, <br>      {"Sportscar", "220 hp", "Black"}, <br>      {"Van", "65 hp", "Black"}, <br>      {"Van", "90 hp", "Blue"}, <br>      {"Van", "115 hp", "Grey"}, <br>      {"Compact car", "65 hp", "Grey"},<br>      {"Compact car", "65 hp", "Grey"},<br>      {"Compact car", "55 hp", "Grey"},<br>      {"Compact car", "55 hp", "Green"}<br>}));<br><br>kb.createRule(new Rule(<br>  new Equals(kb.getAttribute("Navigation"), "yes"),<br>  new Exclude(kb.getAttribute("Radio"), new String[] {"no"})<br>));<br></pre>
+<p> The first rule is a table describing valid combinations of car
+type, engine and color. The second statement defines a simple rule
+saying:
 </p>
 <p>
 If we want navigation, then we are obliged to take a radio as well.
 </p>
 <p>
-Now we can take a look at the result with the default gui. 
-</p>
-<pre class="code">
-Session session = new Session(kb);
-DefaultGuiFrame frame = new DefaultGuiFrame(session);
-frame.setVisible(true);
-</pre>
+Now we can take a look at the result with the default gui. </p>
+<pre class="code">Session session = new Session(kb);<br>DefaultGuiFrame frame = new DefaultGuiFrame(session);<br>frame.setVisible(true);<br></pre>
 <p>
-The class DefaultGuiFrame can be found in the package <code>de.scp.selector.gui</code>. The result should be something like this:
+The class DefaultGuiFrame can be found in the package <code>de.scp.selector.gui</code>.
+The result should be something like this:
 </p>
-<div align="middle"><img src="./gui_table_rule.PNG"/></div>
-<p> If we select a sportscar the engine is instantly selected with the only available value of 220 hp. Selecting the drop down box for the color indicates that this car is only available in red or black.
+<div align="center"><img src="./gui_table_rule.PNG"></div>
+<p> If we select a sportscar the engine is instantly selected with the
+only available value of 220 hp. Selecting the drop down box for the
+color indicates that this car is only available in red or black.
 </p>
-<p> Now if we select Radio with no, this is perfectly ok with the rules. But as we select Navigation with yes a violation is shown.
-<div align="center" <img src="./gui_violation.PNG"/></div>
+<p> Now if we select Radio with no, this is perfectly ok with the
+rules. But as we select Navigation with yes a violation is shown.
+</p>
+<div align="center"><img src="./gui_violation.PNG"></div>
 </div>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+<title></title>
+<br>
+<br>
 </body>
 </html>
