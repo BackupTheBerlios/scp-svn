@@ -34,10 +34,9 @@ div#right {
 }
 
 div#Contents {
-  background-image: url(./background.jpg);
+  background-image: url(./background1.jpg);
   margin-left: 170px;
   margin-right: 170px;
-  border 1px dashed #000000;
   padding: 1px 5px 5px 5px;
 }
 
@@ -50,11 +49,10 @@ pre.code {
   margin-left: 0.5cm;
   margin-right: 0.5cm;
   font-family: courier;
-  font-size: 12.px;
-  text-allignment: justify;
+  font-size: 12px;
+  text-alignment: justify;
   background-color: #DDDDDD;
   color: #111199;
-  left: 10%;
   border: #888888 solid 1px;
 }
 

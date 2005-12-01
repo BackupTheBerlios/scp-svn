@@ -14,23 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
 
-import de.scp.selector.ruleengine.Knowledgebase;
 import de.scp.selector.ruleengine.Session;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
-import de.scp.selector.ruleengine.rules.Rule;
-import de.scp.selector.ruleengine.rules.Table;
-import de.scp.selector.ruleengine.rules.conditions.Equals;
-import de.scp.selector.ruleengine.rules.consequences.Exclude;
 
 
 public class DefaultGuiFrame extends JFrame {
 	private Session session;
 	private List<EnumComboField> inputElements = new ArrayList<EnumComboField>();
+	JCheckBox forceInputCheckBox;
 	
 	public DefaultGuiFrame(Session session) {
 		super("DefaultGui");
@@ -71,6 +68,9 @@ public class DefaultGuiFrame extends JFrame {
 			}
 		});
 		innerPanel.add(sendButton);
+		forceInputCheckBox = new JCheckBox("force");
+		forceInputCheckBox.setToolTipText("Allow selection of not applicable values.");
+		innerPanel.add(forceInputCheckBox);
 		buttonPanel.add(innerPanel);
 		return buttonPanel;
 	}

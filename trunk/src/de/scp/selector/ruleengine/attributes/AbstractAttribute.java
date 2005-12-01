@@ -20,6 +20,7 @@ public abstract class AbstractAttribute {
 	private List<String> violations = new ArrayList<String>();
 	// TODO move sequence into contents
 	private int sequence = Integer.MAX_VALUE;
+	
 
 	public AbstractAttribute(String name) {
 		this.name = name;

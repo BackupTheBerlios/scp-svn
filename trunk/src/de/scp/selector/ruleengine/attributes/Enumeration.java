@@ -123,10 +123,10 @@ public class Enumeration extends AbstractAttribute {
 			return result;
 		result.addAffectedAttribute(this);
 		// deslect attribute
-		if (items.length == 1 && EMPTY_VALNAME.equals(items[0])) {
-			clear(sc);
-			return result;
-		}
+//		if (items.length == 1 && EMPTY_VALNAME.equals(items[0])) {
+//			clear(sc);
+//			return result;
+//		}
 		// identify selected elements and set them
 		List<String> itemList = new LinkedList<String>(Arrays.asList(items));
 		elementloop: for (EnumElement elem : getElements(sc)) {
