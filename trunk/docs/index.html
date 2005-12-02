@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+<title>Selector with Constraint Propagation</title>
 <head>
   <link rel="stylesheet" type="text/css" href="scpstyle.css">
   <title>SCP Selector with Constraint Propagation</title>
@@ -11,7 +13,8 @@
 <div id="Navigation">
 <b>Navigation:</b>
 <p>
-<a href="http://developer.berlios.de/projects/scp">Projekt</a> <br/>
+Home<br/>
+<a href="http://developer.berlios.de/projects/scp">Project (Berlios)</a> <br/>
 <a href="http://developer.berlios.de/project/showfiles.php?group_id=4796">Download</a> <br/>
 <a href="javadoc/index.html">Javadoc</a>
 </p>
@@ -23,7 +26,10 @@
 <h1>SCP Selector with Constraint Propagation
 </h1>
 <p>
-SCP provides a simple interface to define business rules. In order to acchieve this, attributes and rules will be expressed in a simple syntax, building the so called knowledge base. With the API an application can check its current selections (values) for the predefined attributes against the knowledge base.</p>
+SCP provides a simple interface to define business rules. In order to acchieve this, attributes 
+and rules will be expressed in a simple syntax, building the so called knowledge base. With the 
+API an application can check its current selections (values) for the predefined attributes against 
+the knowledge base.</p>
 <p> SCP will then</p>
 <li> check if any of the rules in the knowledgebase has been violated </li>
 <li> try to narrow the possible values of dependent attributes </li>
@@ -36,11 +42,24 @@ have a set of different cars, which can be ordered in different
 configurations. Using SCP this means, we have to define a new knowledge
 base first:
 </p>
-<pre class="code">Knowledgebase kb = new Knowledgebase();<br></pre>
+<pre class="code">
+Knowledgebase kb = new Knowledgebase();
+</pre>
 Now we want to fill the knowledge base with our business rules. At the
 moment this can be done in code only. We start by adding some
 attributes to the knowledge base:
-<pre class="code">kb.createAttribute(new Enumeration("Car", new String[] { <br>  "Sportscar", "Van", "Compact car"}));<br>kb.createAttribute(new Enumeration("Engine power", new String[] {<br>  "55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));<br>kb.createAttribute(new Enumeration("Color", new String[] {<br>  "Red", "Black", "Blue", "Grey", "Green"}));<br>kb.createAttribute(new Enumeration("Navigation", new String[] {<br>  "yes", "no"}));<br>kb.createAttribute(new Enumeration("Radio", new String[] {<br>  "no", "simple", "comfort"}));<br></pre>
+<pre class="code">
+kb.createAttribute(new Enumeration("Car", new String[] { 
+  "Sportscar", "Van", "Compact car"}));
+kb.createAttribute(new Enumeration("Engine power", new String[] {
+  "55 hp", "65 hp", "90 hp", "115 hp", "220 hp" }));
+kb.createAttribute(new Enumeration("Color", new String[] {
+  "Red", "Black", "Blue", "Grey", "Green"}));
+kb.createAttribute(new Enumeration("Navigation", new String[] {
+  "yes", "no"}));
+kb.createAttribute(new Enumeration("Radio", new String[] {
+  "no", "simple", "comfort"}));
+</pre>
 <p>
 This means we want to configure the type, the power and the color of
 the car. Furthermore we have some extras (i.e. Navigation and radio).
@@ -48,7 +67,29 @@ the car. Furthermore we have some extras (i.e. Navigation and radio).
 <p>
 Now we want to define some rules:
 </p>
-<pre class="code">kb.createRule(new Table(new AbstractAttribute[] {<br>      kb.getAttribute("Car"), <br>      kb.getAttribute("Engine power"), <br>      kb.getAttribute("Color")<br>  },<br>  new String[][] { <br>      {"Sportscar", "220 hp", "Red"}, <br>      {"Sportscar", "220 hp", "Black"}, <br>      {"Van", "65 hp", "Black"}, <br>      {"Van", "90 hp", "Blue"}, <br>      {"Van", "115 hp", "Grey"}, <br>      {"Compact car", "65 hp", "Grey"},<br>      {"Compact car", "65 hp", "Grey"},<br>      {"Compact car", "55 hp", "Grey"},<br>      {"Compact car", "55 hp", "Green"}<br>}));<br><br>kb.createRule(new Rule(<br>  new Equals(kb.getAttribute("Navigation"), "yes"),<br>  new Exclude(kb.getAttribute("Radio"), new String[] {"no"})<br>));<br></pre>
+<pre class="code">
+kb.createRule(new Table(new AbstractAttribute[] {
+      kb.getAttribute("Car"),
+      kb.getAttribute("Engine power"), 
+      kb.getAttribute("Color")
+  },
+  new String[][] { 
+      {"Sportscar", "220 hp", "Red"}, 
+      {"Sportscar", "220 hp", "Black"},
+      {"Van", "65 hp", "Black"}, 
+      {"Van", "90 hp", "Blue"},
+      {"Van", "115 hp", "Grey"},
+      {"Compact car", "65 hp", "Grey"},
+      {"Compact car", "65 hp", "Grey"},
+      {"Compact car", "55 hp", "Grey"},
+      {"Compact car", "55 hp", "Green"}
+}));
+
+kb.createRule(new Rule(
+  new Equals(kb.getAttribute("Navigation"), "yes"),
+  new Exclude(kb.getAttribute("Radio"), new String[] {"no"})
+));
+</pre>
 <p> The first rule is a table describing valid combinations of car
 type, engine and color. The second statement defines a simple rule
 saying:
@@ -58,9 +99,20 @@ If we want navigation, then we are obliged to take a radio as well.
 </p>
 <p>
 Now we can take a look at the result with the default gui. </p>
-<pre class="code">Session session = new Session(kb);<br>DefaultGuiFrame frame = new DefaultGuiFrame(session);<br>frame.setVisible(true);<br></pre>
+<pre class="code">
+Session session = new Session(kb);
+DefaultGuiFrame frame = new DefaultGuiFrame(session);
+frame.setVisible(true);
+</pre>
 <p>
-The class DefaultGuiFrame can be found in the package <code>de.scp.selector.gui</code>.
+To run this example, we put the <a href="CarSelling.java">complete code</a> into the body of a 
+main method, organize the proper imports from <code>scpengine.jar</code> 
+(available at the download section)
+and compile the code. Now we can start the default gui and play around.
+</p>
+<p>
+<code> java -cp scpengine.jar CarSelling<code>
+</p>
 The result should be something like this:
 </p>
 <div align="center"><img src="./gui_table_rule.PNG"></div>
@@ -73,8 +125,6 @@ rules. But as we select Navigation with yes a violation is shown.
 </p>
 <div align="center"><img src="./gui_violation.PNG"></div>
 </div>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-<title></title>
 <br>
 <br>
 </body>
