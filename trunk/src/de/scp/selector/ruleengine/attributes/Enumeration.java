@@ -122,11 +122,7 @@ public class Enumeration extends AbstractAttribute {
 		if (items == null)
 			return result;
 		result.addAffectedAttribute(this);
-		// deslect attribute
-//		if (items.length == 1 && EMPTY_VALNAME.equals(items[0])) {
-//			clear(sc);
-//			return result;
-//		}
+
 		// identify selected elements and set them
 		List<String> itemList = new LinkedList<String>(Arrays.asList(items));
 		elementloop: for (EnumElement elem : getElements(sc)) {
@@ -153,6 +149,10 @@ public class Enumeration extends AbstractAttribute {
 		}
 		if (itemList.size() > 0)
 			throw new RuntimeException("element " + itemList + " not in enumeration " + toString());
+		// if the empty element was set reset attribute-state
+		if (items.length == 1 && EMPTY_VALNAME.equals(items[0])) {
+			assigned = false;
+		}
 		return result;
 	}
 

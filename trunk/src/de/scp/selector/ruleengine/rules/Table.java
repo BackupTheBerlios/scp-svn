@@ -84,7 +84,7 @@ public class Table extends AbstractRule {
 						.toArray(new String[valueRanges[col.intValue()].size()]);
 				if (columnAttr[col.intValue()] instanceof Enumeration) {
 					Logger.getInstance().debug(
-							"Table: " + columnAttr[col.intValue()].getName()
+							"Table("+getColumnNames()+"): " + columnAttr[col.intValue()].getName()
 									+ " includes: "
 									+ Logger.arrayToString(applicableVals));
 					if (applicableVals.length == 0) {
@@ -112,8 +112,8 @@ public class Table extends AbstractRule {
 
 	@Override
 	public String toString() {
-		StringBuffer ret = new StringBuffer("Table: ").append(getColumnNames())
-				.append(": {");
+		StringBuffer ret = new StringBuffer("Table(").append(getColumnNames())
+				.append("): {");
 		for (int row = 0; row < values.length; row++) {
 			if (row != 0) {
 				ret.append(", ");
