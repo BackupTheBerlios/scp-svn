@@ -2,8 +2,12 @@ package de.scp.selector.gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -17,12 +21,26 @@ public class EnumComboField extends JComboBox {
 	private Enumeration linkedAttr;
 	private Session session;
 	private JLabel label;
+	private JLabel errorImageLabel;
+	private static ImageIcon errorBubbleIcon;
+	
+	static {
+		URL url = ClassLoader.getSystemResource("de/scp/selector/gui/resource/ErrorBubble_hor.png");
+		errorBubbleIcon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url));
+		
+	}
 
 	public EnumComboField(Enumeration enumeration, Session session) {
 		this.linkedAttr = enumeration;
 		this.session = session;
 		// setForeground(Color.RED);
 		label = new JLabel(linkedAttr.getName());
+		errorImageLabel = new JLabel() {
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(16, 16);
+			}
+		};
 		for (Object element : session.getValueContents(linkedAttr.getName())) {
 			addItem(element);
 		}
@@ -85,16 +103,18 @@ public class EnumComboField extends JComboBox {
 			}
 		}
 		if (linkedAttr.getViolations().length != 0) {
-			setToolTipText(linkedAttr.getViolations()[0]);
-			label.setForeground(Color.RED);
-			setForeground(Color.RED);
+			errorImageLabel.setIcon(errorBubbleIcon);
+			errorImageLabel.setToolTipText(linkedAttr.getViolations()[0]);
+//			label.setForeground(Color.RED);
+//			setForeground(Color.RED);
 		}
 		else {
 			setToolTipText(null);
 			label.setForeground(Color.BLACK);
 			setForeground(Color.BLACK);
+			errorImageLabel.setIcon(null);
 		}
-		Enumeration.EnumElement item = (Enumeration.EnumElement) getSelectedItem();
+		// Enumeration.EnumElement item = (Enumeration.EnumElement) getSelectedItem();
 		// Logger.getInstance().debug("Select " + item.name + " " +
 		// item.available);
 
@@ -102,6 +122,10 @@ public class EnumComboField extends JComboBox {
 		for (int i = 0; i < listeners.length; i++) {
 			addActionListener(listeners[listeners.length - i - 1]);
 		}
+	}
+
+	public Component getMarker() {
+		return errorImageLabel;
 	}
 
 }

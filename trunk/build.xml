@@ -16,7 +16,7 @@
 	<!-- ================================= 
           target: default              
          ================================= -->
-	<target name="default" depends="clean,serverapi,tests,server,clientapi,javadoc">
+	<target name="default" depends="clean,scpengine,tests,server,clientapi,javadoc">
 	</target>
 
 	<target name="clean">
@@ -28,9 +28,9 @@
 	</target>
 
 	<!-- API for the ruleengine -->
-	<target name="serverapi">
+	<target name="scpengine">
 		<javac srcdir="src" destdir="bin" />
-		<jar destfile="deploy/scpapi.jar" basedir="bin" />
+		<jar destfile="deploy/scpengine.jar" basedir="bin" />
 	</target>
 
 	<target name="tests">

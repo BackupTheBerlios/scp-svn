@@ -1,7 +1,6 @@
 package de.scp.selector.ruleengine;
 
-import de.scp.selector.ruleengine.Knowledgebase;
-import de.scp.selector.ruleengine.SessionContents;
+import junit.framework.TestCase;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 import de.scp.selector.ruleengine.rules.Rule;
@@ -11,8 +10,6 @@ import de.scp.selector.ruleengine.rules.conditions.Equals;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import de.scp.selector.ruleengine.rules.conditions.IFuzzyBoolComponent;
 import de.scp.selector.ruleengine.rules.consequences.AssignEquals;
-import de.scp.selector.ruleengine.rules.consequences.Exclude;
-import junit.framework.TestCase;
 
 /**
  * @author Axel Sammet

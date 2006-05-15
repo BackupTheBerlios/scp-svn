@@ -2,11 +2,14 @@ package de.scp.selector.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
 
 public class Logger {
 	private static Logger instance;
-
+	
 	private Logger() {
+		java.util.logging.Logger.getLogger("SCP").setLevel(Level.FINEST);
+		java.util.logging.Logger.getLogger("SCP").info("Set level "+java.util.logging.Logger.getLogger("SCP").getLevel());
 	}
 
 	public static synchronized Logger getInstance() {
@@ -23,15 +26,18 @@ public class Logger {
 	}
 
 	public void debug(String mes) {
-		System.out.println(prefix() + " DEBUG " + mes);
+		java.util.logging.Logger.getLogger("SCP").log(Level.INFO, mes);
+//		System.out.println(prefix() + " DEBUG " + mes);
 	}
 
 	public void info(String mes) {
-		System.out.println(prefix() + " INFO  " + mes);
+		java.util.logging.Logger.getLogger("SCP").log(Level.INFO, mes);
+		//System.out.println(prefix() + " INFO  " + mes);
 	}
 
 	public void error(String mes) {
-		System.err.println(prefix() + " ERROR " + mes);
+		java.util.logging.Logger.getLogger("SCP").log(Level.SEVERE, mes);
+		//System.err.println(prefix() + " ERROR " + mes);
 	}
 
 	public void error(Throwable exc) {

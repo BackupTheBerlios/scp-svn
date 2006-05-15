@@ -88,8 +88,13 @@ public class DefaultGuiFrame extends JFrame {
 		for (AbstractAttribute attrib : session.getAllAttributes()) {
 			EnumComboField comp = (EnumComboField) createEnumField((Enumeration) attrib);
 			gbc.gridx = 0;
-			attribPanel.add(comp.getLabel(), gbc);
+			gbc.insets = new Insets(5, 5, 5, 2);
+			attribPanel.add(comp.getMarker(), gbc);
 			gbc.gridx = 1;
+			gbc.insets = new Insets(5, 2, 5, 5);
+			attribPanel.add(comp.getLabel(), gbc);
+			gbc.gridx = 2;
+			gbc.insets = new Insets(5, 5, 5, 5);
 			attribPanel.add(comp, gbc);
 			gbc.gridy++;
 		}
