@@ -13,9 +13,8 @@ import de.scp.selector.util.Logger;
 import de.scp.selector.util.PublicCloneable;
 
 /**
- * Enumerations reflect attributes with a defined set of values. For an
- * explanation of the meaning of the often used parameter sequence see
- * AbstractAttribute.
+ * Enumerations reflect attributes with a defined set of values. For an explanation of the meaning
+ * of the often used parameter sequence see AbstractAttribute.
  * 
  * @author Axel Sammet
  */
@@ -23,11 +22,8 @@ public class Enumeration extends AbstractAttribute {
 
 	public static class EnumElement implements PublicCloneable {
 		public String name;
-
 		public boolean available = true;
-
 		public boolean selected;
-
 		private int sequence;
 
 		public EnumElement(String name) {
@@ -91,7 +87,7 @@ public class Enumeration extends AbstractAttribute {
 		}
 	}
 
-	private static final String EMPTY_VALNAME ="-";
+	private static final String EMPTY_VALNAME = "-";
 
 	String[] elementNames;
 
@@ -101,8 +97,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
-	 * Selects a single item in an enumeration. All other elements are
-	 * deselected.
+	 * Selects a single item in an enumeration. All other elements are deselected.
 	 * 
 	 * @param itemName
 	 */
@@ -112,8 +107,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
-	 * Selects the given items in an enumeration. All other elements are
-	 * deselected.
+	 * Selects the given items in an enumeration. All other elements are deselected.
 	 * 
 	 * @param items
 	 */
@@ -157,8 +151,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
-	 * Excludes all parameter, which are not given in the parameter
-	 * applicableVals.
+	 * Excludes all parameter, which are not given in the parameter applicableVals.
 	 * 
 	 * @param applicableVals
 	 * @param sequence
@@ -194,13 +187,11 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
-	 * Excludes an item from this enumeration (EnumElement.applicable = false).
-	 * If only one applicable element is left it will be selected.
+	 * Excludes an item from this enumeration (EnumElement.applicable = false). If only one
+	 * applicable element is left it will be selected.
 	 * 
-	 * @param item
-	 *            Item to exclude.
-	 * @param sequence
-	 *            sequence
+	 * @param item Item to exclude.
+	 * @param sequence sequence
 	 * @return
 	 */
 	public IConsequence.Result exclude(SessionContents sc, String item, int sequence) {
@@ -290,8 +281,8 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
-	 * Equals the Enumeration with the given item. If the Enumeration is already
-	 * assigned this method checks if the selected items match the given item.
+	 * Equals the Enumeration with the given item. If the Enumeration is already assigned this
+	 * method checks if the selected items match the given item.
 	 * 
 	 * @param item
 	 * @return Returns true if the two operands are equal
@@ -301,8 +292,8 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	/**
-	 * Equals the Enumeration with the given item. If the Enumeration is already
-	 * assigned this method checks if the selected items match the given item.
+	 * Equals the Enumeration with the given item. If the Enumeration is already assigned this
+	 * method checks if the selected items match the given item.
 	 * 
 	 * @param item
 	 * @return Returns true if the two operands are equal
@@ -364,9 +355,9 @@ public class Enumeration extends AbstractAttribute {
 			ret += elem.toFullString() + ", ";
 		return ret + "]";
 	}
-	
+
 	public String toString() {
-		return "Enumeration: "+getName();
+		return "Enumeration: " + getName();
 	}
 
 	public List<EnumElement> getElements(SessionContents sc) {
@@ -421,7 +412,7 @@ public class Enumeration extends AbstractAttribute {
 	@Override
 	public String[] getSelectedValuesAsStrings(SessionContents sc) {
 		LinkedList<String> valueStrings = new LinkedList<String>();
-		for(EnumElement elem : getElements(sc)) {
+		for (EnumElement elem : getElements(sc)) {
 			if (elem.selected)
 				valueStrings.add(elem.name);
 		}
