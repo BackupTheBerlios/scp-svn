@@ -48,7 +48,7 @@ public class SessionContents {
 	 * @param key
 	 * @return
 	 */
-	public Object getContents(String key) {
+	public PublicCloneable getContents(String key) {
 		return contents.get(key);
 	}
 

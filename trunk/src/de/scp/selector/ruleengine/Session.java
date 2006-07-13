@@ -5,9 +5,9 @@ import java.util.Collection;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 
 /**
- * Session is one of the interface classes of SCP. Session provides methods to
- * set and get attributes and values. Session stores the SessionContents, which
- * is not part of the public interface.
+ * Session is one of the interface classes of SCP. Session provides methods to set and get
+ * attributes and values. Session stores the SessionContents, which is not part of the public
+ * interface.
  * 
  * @author Axel Sammet
  */
@@ -43,21 +43,36 @@ public class Session {
 	 * Returns the value(s) of an attribute.
 	 * 
 	 * @param name
-	 * @return Returns a String for TextAttributes or an array of EnumElements for
-	 *         Enumerations
+	 * @return Returns a String for TextAttributes or an array of EnumElements for Enumerations
 	 */
 	public Object[] getValueContents(String name) {
 		return knowledgebase.getAttribute(name).getAllValues(contents);
 	}
 
+	/**
+	 * Returns the selected values of an attribute as an array of Strings. For arbitrary attributes
+	 * the array is of length 1.
+	 * 
+	 * @param name name of the requested attribute
+	 * @return Returns an array for the selected values.
+	 */
 	public String[] getSelectedValues(String name) {
 		return knowledgebase.getAttribute(name).getSelectedValuesAsStrings(contents);
 	}
-	
 
 	/**
-	 * Clears the session. All informations about selections or status of
-	 * attributes or rules are lost.
+	 * Returns all violations for an attribute.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public String[] getViolations(String name) {
+		return knowledgebase.getAttribute(name).getViolations(contents);
+	}
+
+	/**
+	 * Clears the session. All informations about selections or status of attributes or rules are
+	 * lost.
 	 */
 	public void clear() {
 		knowledgebase.clear(getContents());

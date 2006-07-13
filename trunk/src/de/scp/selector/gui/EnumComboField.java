@@ -18,7 +18,7 @@ import de.scp.selector.ruleengine.Session;
 import de.scp.selector.ruleengine.attributes.Enumeration;
 
 public class EnumComboField extends JComboBox {
-	private Enumeration linkedAttr;
+	private String linkedAttrName;
 	private Session session;
 	private JLabel label;
 	private JLabel errorImageLabel;
@@ -30,18 +30,18 @@ public class EnumComboField extends JComboBox {
 		
 	}
 
-	public EnumComboField(Enumeration enumeration, Session session) {
-		this.linkedAttr = enumeration;
+	public EnumComboField(String nameOfEnum, Session session) {
+		this.linkedAttrName = nameOfEnum;
 		this.session = session;
 		// setForeground(Color.RED);
-		label = new JLabel(linkedAttr.getName());
+		label = new JLabel(linkedAttrName);
 		errorImageLabel = new JLabel() {
 			@Override
 			public Dimension getPreferredSize() {
 				return new Dimension(16, 16);
 			}
 		};
-		for (Object element : session.getValueContents(linkedAttr.getName())) {
+		for (Object element : session.getValueContents(linkedAttrName)) {
 			addItem(element);
 		}
 		setRenderer(new BasicComboBoxRenderer() {
@@ -77,7 +77,7 @@ public class EnumComboField extends JComboBox {
 			}
 			items[i] = elem.name;
 		}
-		session.setAttribute(linkedAttr.getName(), items[0]);
+		session.setAttribute(linkedAttrName, items[0]);
 	}
 
 	/**
@@ -91,7 +91,8 @@ public class EnumComboField extends JComboBox {
 		for (int i = 0; i < listeners.length; i++) {
 			removeActionListener(listeners[i]);
 		}
-		Object[] values = (Object[]) session.getValueContents(linkedAttr.getName());
+		// now do the update
+		Object[] values = (Object[]) session.getValueContents(linkedAttrName);
 		if (values != null && values.length != 0) {
 			removeAllItems();
 			for (int i = 0; i < values.length; i++) {
@@ -102,9 +103,9 @@ public class EnumComboField extends JComboBox {
 				}
 			}
 		}
-		if (linkedAttr.getViolations().length != 0) {
+		if (session.getViolations(linkedAttrName).length != 0) {
 			errorImageLabel.setIcon(errorBubbleIcon);
-			errorImageLabel.setToolTipText(linkedAttr.getViolations()[0]);
+			errorImageLabel.setToolTipText(session.getViolations(linkedAttrName)[0]);
 //			label.setForeground(Color.RED);
 //			setForeground(Color.RED);
 		}

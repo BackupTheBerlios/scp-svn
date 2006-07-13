@@ -127,15 +127,15 @@ public class Enumeration extends AbstractAttribute {
 				String item = iter.next();
 				if (item.equals(elem.name)) {
 					// TODO a violation would be better
-					if (getSequence() != 0 && getSequence() < sequence
-							&& (!elem.available || (!wasSelected && assigned))) {
+					if (getSequence(sc) != 0 && getSequence(sc) < sequence
+							&& (!elem.available || (!wasSelected && isAssigned(sc)))) {
 						result.setViolation("Cannot set Attribute " + getName() + " to " + item
 								+ " due to previous assignement.");
 						return result;
 					}
 					elem.selected = true;
-					assigned = true;
-					setSequence(sequence);
+					setAssigned(sc, true);
+					setSequence(sc, sequence);
 					iter.remove();
 					continue elementloop;
 				}
@@ -145,7 +145,7 @@ public class Enumeration extends AbstractAttribute {
 			throw new RuntimeException("element " + itemList + " not in enumeration " + toString());
 		// if the empty element was set reset attribute-state
 		if (items.length == 1 && EMPTY_VALNAME.equals(items[0])) {
-			assigned = false;
+			setAssigned(sc, false);
 		}
 		return result;
 	}
@@ -203,7 +203,7 @@ public class Enumeration extends AbstractAttribute {
 			if (elem.name.equals(EMPTY_VALNAME))
 				continue;
 			if (item.equals(elem.name)) {
-				if (getSequence() < sequence && elem.selected) {
+				if (getSequence(sc) < sequence && elem.selected) {
 					result.setViolation("Exclude '" + item + "' from attribute " + getName()
 							+ " conflicts with actual value.");
 					return result;
@@ -231,7 +231,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	public FuzzyBoolEnum equalsTo(SessionContents sc, String item) {
-		if (!assigned)
+		if (!isAssigned(sc))
 			return FuzzyBoolEnum.UNDEFINED;
 		FuzzyBoolEnum foundSelection = FuzzyBoolEnum.FALSE;
 		for (EnumElement elem : getElements(sc)) {
@@ -248,7 +248,7 @@ public class Enumeration extends AbstractAttribute {
 	}
 
 	public FuzzyBoolEnum equalsTo(SessionContents sc, String[] itemArray) {
-		if (!assigned)
+		if (!isAssigned(sc))
 			return FuzzyBoolEnum.UNDEFINED;
 		List<String> items = new LinkedList<String>(Arrays.asList(itemArray));
 		// we search all selected elements in items and remove found items
@@ -304,7 +304,7 @@ public class Enumeration extends AbstractAttribute {
 		if (equal == FuzzyBoolEnum.TRUE) {
 			return result;
 		}
-		else if (getSequence() < sequence && equal == FuzzyBoolEnum.FALSE) {
+		else if (getSequence(sc) < sequence && equal == FuzzyBoolEnum.FALSE) {
 			result.setViolation(getName() + " = " + Logger.arrayToString(items)
 					+ " is in conflict with actual value");
 			return result;
@@ -316,8 +316,8 @@ public class Enumeration extends AbstractAttribute {
 			return result;
 		}
 		result.addAffectedAttribute(this);
-		if (getSequence() > sequence)
-			setSequence(sequence);
+		if (getSequence(sc) > sequence)
+			setSequence(sc, sequence);
 		for (EnumElement elem : getElements(sc)) {
 			boolean isSelected = false;
 			for (int i = 0; i < items.length; i++) {
@@ -366,7 +366,7 @@ public class Enumeration extends AbstractAttribute {
 			contents = new EnumerationContents();
 			contents.init(elementNames);
 			if (sc != null) {
-				sc.putContents(getName(), contents);
+				putContents(sc, contents);
 			}
 		}
 		return contents.getElements();
@@ -399,9 +399,9 @@ public class Enumeration extends AbstractAttribute {
 				elem.selected = false;
 			}
 		}
-		setSequence(Integer.MAX_VALUE);
+		setSequence(sc, Integer.MAX_VALUE);
 		removeViolations(sc);
-		assigned = false;
+		setAssigned(sc, false);
 	}
 
 	@Override

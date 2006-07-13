@@ -45,7 +45,7 @@ public class Knowledgebase {
 		AbstractAttribute attr = getAttribute(name);
 		// for everey NEW input we generate a higher number
 		// rules from lower sequences dominate later inputs
-		int attrSequence = attr.getSequence();
+		int attrSequence = attr.getSequence(sc);
 		int currentInputSequence = sc.getNextSequenceId();
 		if (attrSequence > currentInputSequence) {
 			attrSequence = currentInputSequence;
@@ -55,7 +55,7 @@ public class Knowledgebase {
 		// occur during one selection
 		// (they overwrite each other instead)
 		fireRules(sc, attr, attrSequence);
-		attr.setSequence(attrSequence);
+		attr.setSequence(sc, attrSequence);
 	}
 
 	private void fireRules(SessionContents sc, AbstractAttribute attr, int sequenceId) {
@@ -72,9 +72,10 @@ public class Knowledgebase {
 				AbstractRule rule = it.next();
 				AbstractRule.Result result = rule.execute(sc, sequenceId);
 				noOfRulesChecked++;
+				Logger.getInstance().debug("Checking rule "+rule);
 				if (result.violationOccured()) {
 					Logger.getInstance().debug("Violation occured: " + result.getViolation());
-					attr.addViolation(result.getViolation());
+					attr.addViolation(sc, result.getViolation());
 				}
 				if (result.hasChangedAttributes()) {
 					// knowledge base changed => we are not finished yet

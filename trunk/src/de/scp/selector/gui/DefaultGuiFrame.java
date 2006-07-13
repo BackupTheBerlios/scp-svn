@@ -40,13 +40,13 @@ public class DefaultGuiFrame extends JFrame {
 		getContentPane().add(getAttributePanel(), BorderLayout.CENTER);
 		getContentPane().add(getButtonPanel(), BorderLayout.SOUTH);
 		pack();
-		allignGUI();
+		alignGUI();
 	}
 
 	/**
-	 * 
+	 * Aligns the GUI at the middle of the screen.
 	 */
-	private void allignGUI() {
+	private void alignGUI() {
 		int x = getToolkit().getScreenSize().width / 2
 				- getPreferredSize().width / 2;
 		int y = getToolkit().getScreenSize().height / 2
@@ -86,7 +86,7 @@ public class DefaultGuiFrame extends JFrame {
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 5, 5, 5);
 		for (AbstractAttribute attrib : session.getAllAttributes()) {
-			EnumComboField comp = (EnumComboField) createEnumField((Enumeration) attrib);
+			EnumComboField comp = createEnumField(attrib.getName());
 			gbc.gridx = 0;
 			gbc.insets = new Insets(5, 5, 5, 2);
 			attribPanel.add(comp.getMarker(), gbc);
@@ -102,11 +102,11 @@ public class DefaultGuiFrame extends JFrame {
 	}
 
 	/**
-	 * @param enumeration
+	 * @param nameOfEnum
 	 * @return
 	 */
-	private Component createEnumField(final Enumeration enumeration) {
-		EnumComboField field = new EnumComboField(enumeration, this.session);
+	private EnumComboField createEnumField(String nameOfEnum) {
+		EnumComboField field = new EnumComboField(nameOfEnum, this.session);
 		inputElements.add(field);
 		field.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
