@@ -13,7 +13,7 @@ div#left {
 }
 
 div#Navigation {
-  background-color: #DDDDEE;
+  background-image: url(./background.png);
   padding: 5px 5px 5px 5px;
 }
 
@@ -34,7 +34,7 @@ div#right {
 }
 
 div#Contents {
-  background-image: url(./background1.jpg);
+  background-image: url(./background.png);
   margin-left: 170px;
   margin-right: 170px;
   padding: 1px 5px 5px 5px;
