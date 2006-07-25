@@ -1,10 +1,11 @@
-package de.scp.selector.ruleengine;
+package de.scp.selector.ruleengine.rules;
 
 import junit.framework.TestCase;
+import de.scp.selector.ruleengine.Knowledgebase;
+import de.scp.selector.ruleengine.Session;
+import de.scp.selector.ruleengine.SessionContents;
 import de.scp.selector.ruleengine.attributes.AbstractAttribute;
 import de.scp.selector.ruleengine.attributes.Enumeration;
-import de.scp.selector.ruleengine.rules.Rule;
-import de.scp.selector.ruleengine.rules.Table;
 import de.scp.selector.ruleengine.rules.conditions.And;
 import de.scp.selector.ruleengine.rules.conditions.Equals;
 import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
@@ -15,25 +16,28 @@ import de.scp.selector.ruleengine.rules.consequences.AssignEquals;
  * @author Axel Sammet
  */
 public class RuleTests extends TestCase {
+	class TestSessionContents extends SessionContents {
+		public TestSessionContents() {
+		}
+	}
 
 	public void testCondition() {
-		Knowledgebase kb = new Knowledgebase();
-		SessionContents sc = new SessionContents();
+		SessionContents sc = new TestSessionContents();
 		Enumeration numbers1 = new Enumeration("numbers1", new String[] { "1", "2", "3", "4" });
 		numbers1.select(sc, "3", 1);
 		Enumeration numbers2 = new Enumeration("numbers2", new String[] { "1", "2", "3", "4" });
 		IFuzzyBoolComponent compound = new And(new Equals(numbers1, "4"), new Equals(numbers2, "1"));
 		// false and undefined => false
-		assertTrue("shortcut for 'lhs is false' failed",
+		assertTrue("shortcut for 'lhs is false in AND' failed",
 				compound.evaluate(sc) == FuzzyBoolEnum.FALSE);
 		compound = new And(new Equals(numbers2, "4"), new Equals(numbers1, "1"));
-		assertTrue("shortcut for 'rhs is false' failed",
+		assertTrue("shortcut for 'rhs is false in AND' failed",
 				compound.evaluate(sc) == FuzzyBoolEnum.FALSE);
 		numbers2.select(sc, "4", 1);
-		assertTrue("evaluation 'true and false' failed",
+		assertTrue("evaluation 'true AND false' failed",
 				compound.evaluate(sc) == FuzzyBoolEnum.FALSE);
 		numbers1.select(sc, "1", 1);
-		assertTrue("evaluation 'true and true' failed", compound.evaluate(sc) == FuzzyBoolEnum.TRUE);
+		assertTrue("evaluation 'true AND true' failed", compound.evaluate(sc) == FuzzyBoolEnum.TRUE);
 		numbers2 = new Enumeration("numbers", new String[] { "1", "2", "3", "4" });
 		compound = new And(new Equals(numbers2, "4"), new Equals(numbers1, "1"));
 		assertTrue("evaluation of undefined expression failed",
@@ -41,8 +45,7 @@ public class RuleTests extends TestCase {
 	}
 
 	public void testConsequence() {
-		Knowledgebase kb = new Knowledgebase();
-		SessionContents sc = new SessionContents();
+		SessionContents sc = new TestSessionContents();
 		Enumeration numbers1 = new Enumeration("numbers1", new String[] { "1", "2", "3", "4" });
 		numbers1.select(sc, "4", 1);
 		Enumeration numbers2 = new Enumeration("numbers2", new String[] { "1", "2", "3", "4" });
@@ -62,9 +65,6 @@ public class RuleTests extends TestCase {
 				"90 hp", "115 hp", "220 hp" }));
 		kb.createAttribute(new Enumeration("Color", new String[] { "red", "black", "blue", "grey",
 				"green" }));
-		kb.createAttribute(new Enumeration("Navigation", new String[] { "yes", "no" }));
-		kb.createAttribute(new Enumeration("Radio", new String[] { "no", "simple", "comfort" }));
-
 		kb.createRule(new Table(new AbstractAttribute[] { kb.getAttribute("Car"),
 				kb.getAttribute("Engine power"), kb.getAttribute("Color") }, new String[][] {
 				{ "Sportscar", "220 hp", "red" }, { "Sportscar", "220 hp", "black" },
@@ -73,16 +73,16 @@ public class RuleTests extends TestCase {
 				{ "Compact car", "65 hp", "grey" }, { "Compact car", "55 hp", "grey" },
 				{ "Compact car", "55 hp", "green" } }));
 		Session session = new Session(kb);
-		session.setAttribute("Car", "Sportscar");
+		session.setAttribute("Car", "Van");
 		session.setAttribute("Color", "blue");
 		session.clear();
-		session.setAttribute("Car", "Sportscar");
-		assertEquals("Error after session clearing.", "220 hp", session
-				.getSelectedValues("Engine power")[0]);
+		session.setAttribute("Car", "Van");
+		assertTrue("Error after session clearing.", !session.getSelectedValues("Color")[0]
+				.equals("blue"));
 	}
 
 	public void testPerformance() {
-		int count = 1000;
+		int count = 100;
 		Knowledgebase kb = new Knowledgebase();
 		for (int i = 0; i < count; i++) {
 			kb.createAttribute(new Enumeration("enum" + i, new String[] { "a", "b", "c", "d" }));

@@ -1,10 +1,8 @@
 package de.scp.selector.ruleengine.attributes;
 
-import de.scp.selector.ruleengine.Knowledgebase;
-import de.scp.selector.ruleengine.SessionContents;
-import de.scp.selector.ruleengine.attributes.Enumeration;
-import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 import junit.framework.TestCase;
+import de.scp.selector.ruleengine.SessionContents;
+import de.scp.selector.ruleengine.rules.conditions.FuzzyBoolEnum;
 
 
 public class EnumerationTests extends TestCase {
@@ -12,9 +10,8 @@ public class EnumerationTests extends TestCase {
 		public TestSessionContents() {
 		}
 	}
-
+	
 	public void testEquals() {
-		Knowledgebase kb = new Knowledgebase();
 		SessionContents sc = new TestSessionContents();
 		Enumeration enumeration = new Enumeration("numbers", new String[] { "1", "2", "3",
 				"4", "5" });
