@@ -12,17 +12,30 @@ import de.scp.selector.ruleengine.rules.AbstractRule;
 import de.scp.selector.util.Logger;
 
 /**
- * A Knowledbase contains a set of attribute- and rule defintions. Therefore it
- * provides methods to create attributes and rules. Furthermore it implements
- * package visible methods for a Session to manipulate its contents in
- * accordance with the rules, i.e. the values of the attributes in that session.
+ * A Knowledbase contains a set of attribute- and rule defintions. Therefore it provides methods to
+ * create attributes and rules. Furthermore it implements package visible methods for a Session to
+ * manipulate its contents in accordance with the rules, i.e. the values of the attributes in that
+ * session.
  * 
  * @see de.scp.selector.ruleengine.SessionContents
  * @author Axel Sammet
  */
 public class Knowledgebase {
+	private String name;
 	private Map<String, AbstractAttribute> allAttributesMap = new LinkedHashMap<String, AbstractAttribute>();
 	private List<AbstractRule> allRules = new ArrayList<AbstractRule>();
+
+	public Knowledgebase(String name) {
+		this.name = name;
+	}
+
+	public Knowledgebase() {
+		this("default");
+	}
+
+	public String getName() {
+		return name;
+	}
 
 	public void createAttribute(AbstractAttribute attr) {
 		Logger.getInstance().info("Adding attribute: " + attr);
@@ -72,7 +85,7 @@ public class Knowledgebase {
 				AbstractRule rule = it.next();
 				AbstractRule.Result result = rule.execute(sc, sequenceId);
 				noOfRulesChecked++;
-				Logger.getInstance().debug("Checking rule "+rule);
+				Logger.getInstance().debug("Checking rule " + rule);
 				if (result.violationOccured()) {
 					Logger.getInstance().debug("Violation occured: " + result.getViolation());
 					attr.addViolation(sc, result.getViolation());

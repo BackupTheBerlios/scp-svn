@@ -1,0 +1,202 @@
+
+PARSER_BEGIN(ScpParser)
+package de.scp.selector.parser.generated;
+
+import java.io.StringReader;
+import java.util.List;
+import java.util.LinkedList;
+import de.scp.selector.ruleengine.Knowledgebase;
+import de.scp.selector.ruleengine.attributes.*;
+import de.scp.selector.ruleengine.rules.*;
+import de.scp.selector.ruleengine.rules.conditions.*;
+import de.scp.selector.ruleengine.rules.consequences.*;
+
+public class ScpParser {
+
+  public static void init() {
+  	new ScpParser(new StringReader(""));
+  }
+  
+  public static Knowledgebase compileKnowledgebase(String input) {
+  	Knowledgebase kb;
+  	try {
+	  	ScpParser.ReInit(new StringReader(input));
+	  	kb = ScpParser.Knowledgebase();
+	}
+	catch(Exception exc) {
+		throw new RuntimeException(exc);
+	}
+	return kb;
+  }
+  
+  private static String strip(String str) {
+	  	return str.substring(1, str.length()-1);
+  }
+  
+}
+
+PARSER_END(ScpParser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+}
+
+TOKEN :
+{
+  <TRUE: "true">
+| <FALSE: "false">
+| <NOT: "not">
+| <AND: "and">
+| <OR: "or">
+| <IF: "if">
+| <THEN: "then">
+| <DEF: "define">
+| <ENUM: "enum">
+| <KB: "knowledgebase">
+| <END: "end">
+| <IDENT: ["A"-"z","_"](["A"-"z","0"-"9","_"])*>
+| <STRING: "\""([" ","A"-"z","0"-"9","_"])*"\"">
+| <DEL: ";">
+}
+
+
+IFuzzyBoolComponent BoolExpression(Knowledgebase kb) : 
+{
+	Token ident;
+	Object values;
+	Token value;
+}
+{
+	ident = <IDENT> "=" (
+		values = StringList() 
+		| value = <STRING> {values = strip(value.toString());}
+	)
+		{
+			AbstractAttribute attr = kb.getAttribute(ident.toString());
+			if (attr == null) {
+				throw new ParseException("Reference to unknown attribute: "+ident.toString());
+			}
+			return new Equals(attr, values);
+		}
+}
+
+IFuzzyBoolComponent BoolPrimitive(Knowledgebase kb) :
+{
+	IFuzzyBoolComponent result;
+}
+{
+	result = BoolExpression(kb) {return result;}
+}
+
+IFuzzyBoolComponent BoolTerm(Knowledgebase kb) :
+{ 
+	IFuzzyBoolComponent result;
+}
+{
+	result = BoolPrimitive(kb) {return result;} 
+|	"(" result=Compound(kb) ")" {return result;}
+|	<NOT> result=BoolTerm(kb) {return new Not(result);}	
+}
+
+IFuzzyBoolComponent Compound2(Knowledgebase kb) :
+{
+	IFuzzyBoolComponent lresult;
+	IFuzzyBoolComponent rresult;
+}
+{
+	lresult=BoolTerm(kb) [<AND> rresult=Compound2(kb) {return new And(lresult, rresult);}] {return lresult;}
+}
+
+IFuzzyBoolComponent Compound(Knowledgebase kb) :
+{
+	IFuzzyBoolComponent lresult;
+	IFuzzyBoolComponent rresult;
+}
+{
+	lresult=Compound2(kb) [<OR> rresult=Compound(kb) {return new Or(lresult, rresult);}] {return lresult;}
+}
+
+IFuzzyBoolComponent Condition(Knowledgebase kb) : 
+{
+	IFuzzyBoolComponent result;
+}
+{
+	result=Compound(kb) {return result;}
+}
+
+IConsequence Consequence(Knowledgebase kb) :
+{
+	Token ident;
+	Token value;
+}
+{
+	ident = <IDENT> "=" value = <STRING> 
+		{
+			AbstractAttribute attr = kb.getAttribute(ident.toString());
+			return new AssignEquals(attr, strip(value.toString()));
+		}
+}
+
+Rule Rule(Knowledgebase kb) :
+{
+	IFuzzyBoolComponent condition;
+	IConsequence consequence;
+}
+{
+	<IF> condition = Condition(kb) <THEN> consequence = Consequence(kb) <DEL> {
+		return new Rule(condition, consequence);
+	}
+}
+
+AbstractAttribute Definition() :
+{
+	Token ident;
+	String[] values;
+}
+{
+	<DEF> <ENUM> ident=<IDENT> "=" values=StringList() <DEL> 
+		{return new Enumeration(ident.toString(),values);}
+}
+
+String[] StringList() :
+{
+	List stringList = new LinkedList();
+	Token strtoken;
+}
+{
+	"{" 
+		[strtoken=<STRING> {stringList.add(strip(strtoken.toString()));}]
+		("," token=<STRING> {stringList.add(token.toString());})*
+	"}" 
+		{return (String[]) stringList.toArray(new String[stringList.size()]);}
+}
+
+void DefinitionOrRule(Knowledgebase kb) :
+{
+	AbstractAttribute attr;
+	AbstractRule rule;
+}
+{
+	attr = Definition() {
+		kb.createAttribute(attr);
+	}
+|	rule = Rule(kb) {
+		kb.createRule(rule);
+	} 
+}
+
+Knowledgebase Knowledgebase() :
+{
+	Token ident;
+	Knowledgebase kb;
+}
+{
+	<KB> ident = <IDENT> <DEL> {kb = new Knowledgebase(ident.toString());}
+	(DefinitionOrRule(kb))*
+	<END>
+	{return kb;}
+}

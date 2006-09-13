@@ -11,12 +11,12 @@
 	<description>
             description
     </description>
-	<property name="JAVA_HOME" value="c:\Programme\java\jdk1.5.0_03" />
+<!--	<property name="JAVA_HOME" value="c:\Programme\java\jdk1.5.0_03" /> -->
 
 	<!-- ================================= 
           target: default              
          ================================= -->
-	<target name="default" depends="clean,scpengine,tests,server,clientapi,javadoc">
+	<target name="default" depends="clean,scpengine,tests,server,clientapi">
 	</target>
 
 	<target name="clean">
@@ -24,19 +24,29 @@
 			<fileset dir="bin">
 				<include name="**/*.class" />
 			</fileset>
+			<fileset dir="src/de/scp/selector/parser/generated">
+				<include name="*.java"/>
+			</fileset>
 		</delete>
 	</target>
 
 	<!-- API for the ruleengine -->
-	<target name="scpengine">
+	<target name="parser">
+		<java classpath="${JAVACC_HOME}/bin/lib/javacc.jar" classname="javacc" dir="src/de/scp/selector/parser/generated/" fork="true" >
+			<arg value="-STATIC=true"/>
+			<arg file="src/de/scp/selector/parser/ScpParser.jj" />
+		</java>
+	</target>
+
+	<target name="scpengine" depends="parser">
 		<javac srcdir="src" destdir="bin" />
 		<jar destfile="deploy/scpengine.jar" basedir="bin" />
 	</target>
 
 	<target name="tests">
-		<javac srcdir="testsrc" destdir="bin" />
+		<javac srcdir="testsrc" destdir="bin" classpath="${JUNIT_LIB}" />
 	</target>
-	
+
 	<target name="examples">
 		<javac srcdir="examples" destdir="bin" />
 	</target>
@@ -51,8 +61,16 @@
 
 	<target name="javadoc">
 		<javadoc destdir="docs/javadoc">
-			<fileset dir="src"/>
+			<fileset dir="src" />
 		</javadoc>
+	</target>
+	
+	<target name="runtest">
+		<junit >
+			<fileset dir="bin">
+				<include name="**/*Test.class"/>
+			</fileset>
+		</junit>
 	</target>
 
 </project>

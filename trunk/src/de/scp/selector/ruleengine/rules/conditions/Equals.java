@@ -25,7 +25,7 @@ public class Equals extends AbstractBinaryOperator {
 	}
 
 	public String toString() {
-		return "Equals(" + lhs.getName() + "," + rhs + ")";
+		return "Equals(" + lhs.getName() + ", '" + rhs + "')";
 	}
 
 }
