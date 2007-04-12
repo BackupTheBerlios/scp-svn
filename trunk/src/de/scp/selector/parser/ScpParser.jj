@@ -1,3 +1,8 @@
+options {
+	OUTPUT_DIRECTORY="generated";
+	STATIC=false;
+	LOOKAHEAD=3;
+}
 
 PARSER_BEGIN(ScpParser)
 package de.scp.selector.parser.generated;
@@ -13,15 +18,12 @@ import de.scp.selector.ruleengine.rules.consequences.*;
 
 public class ScpParser {
 
-  public static void init() {
-  	new ScpParser(new StringReader(""));
-  }
   
   public static Knowledgebase compileKnowledgebase(String input) {
   	Knowledgebase kb;
   	try {
-	  	ScpParser.ReInit(new StringReader(input));
-	  	kb = ScpParser.Knowledgebase();
+	  	ScpParser parser = new ScpParser(new StringReader(input));
+	  	kb = parser.Knowledgebase();
 	}
 	catch(Exception exc) {
 		throw new RuntimeException(exc);
@@ -169,8 +171,8 @@ String[] StringList() :
 }
 {
 	"{" 
-		[strtoken=<STRING> {stringList.add(strip(strtoken.toString()));}]
-		("," token=<STRING> {stringList.add(token.toString());})*
+		strtoken=<STRING> {stringList.add(strip(strtoken.toString()));}
+		("," token=<STRING> {stringList.add(strip(token.toString()));})*
 	"}" 
 		{return (String[]) stringList.toArray(new String[stringList.size()]);}
 }
